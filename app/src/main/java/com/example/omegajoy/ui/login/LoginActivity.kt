@@ -8,10 +8,7 @@ import android.text.TextWatcher
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.Toast
+import android.widget.*
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -22,6 +19,7 @@ import com.example.omegajoy.R
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var loginViewModel: LoginViewModel
+    var login_mode = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +32,26 @@ class LoginActivity : AppCompatActivity() {
         val password = findViewById<EditText>(R.id.password)
         val login = findViewById<Button>(R.id.login)
         val loading = findViewById<ProgressBar>(R.id.loading)
+        val register_text = findViewById<TextView>(R.id.register_text)
+        val login_text = findViewById<TextView>(R.id.login_text)
+
+        // TODO: refactor - переместить блок текста в нужное место
+        register_text.setOnClickListener {
+            if (register_text.textSize != 36F) {
+                register_text.textSize = 36F
+                login_text.textSize = 24F
+                login.text = getString(R.string.action_sign_in)
+                login_mode = false
+            }
+        }
+        login_text.setOnClickListener {
+            if (login_text.textSize != 36F) {
+                register_text.textSize = 24F
+                login_text.textSize = 36F
+                login.text = getString(R.string.action_log_in)
+                login_mode = true
+            }
+        }
 
         loginViewModel = ViewModelProvider(this, LoginViewModelFactory())
             .get(LoginViewModel::class.java)
