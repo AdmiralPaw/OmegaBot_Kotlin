@@ -1,6 +1,6 @@
 package com.example.omegajoy.ui.login
 
-import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -79,15 +79,16 @@ class LoginActivity : AppCompatActivity() {
             }
             if (loginResult.success != null) {
                 updateUiWithUser(loginResult.success)
-            }
-            //TODO: что это?
-            setResult(Activity.RESULT_OK)
+                //TODO: что это?
+//                setResult(Activity.RESULT_OK)
 
-            //TODO: выполнение перехода к main_activity после входа
-            //Complete and destroy login activity once successful
-            finish()
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+                //TODO: выполнение перехода к main_activity после входа
+                //Complete and destroy login activity once successful
+
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
         })
 
         username.afterTextChanged {
@@ -110,7 +111,8 @@ class LoginActivity : AppCompatActivity() {
                     EditorInfo.IME_ACTION_DONE ->
                         loginViewModel.login(
                             username.text.toString(),
-                            password.text.toString()
+                            password.text.toString(),
+                            login_mode
                         )
                 }
                 false
@@ -118,7 +120,7 @@ class LoginActivity : AppCompatActivity() {
 
             login.setOnClickListener {
                 loading.visibility = View.VISIBLE
-                loginViewModel.login(username.text.toString(), password.text.toString())
+                loginViewModel.login(username.text.toString(), password.text.toString(), login_mode)
             }
         }
     }
@@ -159,6 +161,10 @@ class LoginActivity : AppCompatActivity() {
         window?.decorView?.systemUiVisibility = flags
         supportActionBar?.hide()
     }
+}
+
+fun Context.toast(message: String) {
+    Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
 }
 
 /**
