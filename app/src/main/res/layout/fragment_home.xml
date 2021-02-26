@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.home.HomeFragment">
+
+    <ImageView
+        android:id="@+id/video"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/home_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/presets_one_joystick"
+        app:layout_constraintStart_toEndOf="@+id/joystick_left"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.gridlayout.widget.GridLayout
+        android:id="@+id/presets_one_joystick"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:columnCount="3"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:rowCount="3">
+
+        <ImageButton
+            android:id="@+id/top"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_baseline_keyboard_arrow_up_24"
+            app:layout_column="1"
+            app:layout_row="0" />
+
+        <ImageButton
+            android:id="@+id/right"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
+            app:layout_column="2"
+            app:layout_row="1" />
+
+        <ImageButton
+            android:id="@+id/left"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_baseline_keyboard_arrow_left_24"
+            app:layout_column="0"
+            app:layout_row="1" />
+
+        <ImageButton
+            android:id="@+id/bottom"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_baseline_keyboard_arrow_down_24"
+            app:layout_column="1"
+            app:layout_row="2" />
+    </androidx.gridlayout.widget.GridLayout>
+
+    <LinearLayout
+        android:id="@+id/presets_two_joysticks"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageButton
+            android:id="@+id/preset_button_left_2"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="4dp" />
+
+        <ImageButton
+            android:id="@+id/preset_button_top_2"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="4dp" />
+
+        <ImageButton
+            android:id="@+id/preset_button_bottom_2"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="4dp" />
+
+        <ImageButton
+            android:id="@+id/preset_button_right_2"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="4dp" />
+
+    </LinearLayout>
+
+    <com.jmedeisis.bugstick.Joystick
+        android:id="@+id/joystick_left"
+        android:layout_width="192dp"
+        android:layout_height="192dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/bg_base"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <!-- You may use any View here. -->
+        <Button
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:background="@drawable/bg_stick"
+            app:iconTint="@color/light_gray_visibility_90" />
+
+    </com.jmedeisis.bugstick.Joystick>
+
+    <com.jmedeisis.bugstick.Joystick
+        android:id="@+id/joystick_right"
+        android:layout_width="192dp"
+        android:layout_height="192dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/bg_base"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- You may use any View here. -->
+        <Button
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:background="@drawable/bg_stick" />
+    </com.jmedeisis.bugstick.Joystick>
+
+    <ImageButton
+        android:id="@+id/button_to_menu"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_baseline_menu_50"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/button_to_code"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_baseline_code_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
