@@ -62,8 +62,10 @@ class LoginActivity : AppCompatActivity() {
             if (loginResult.success != null) {
                 updateUiWithUser(loginResult.success)
             }
+            //TODO: что это?
             setResult(Activity.RESULT_OK)
 
+            //TODO: выполнение перехода к main_activity после входа
             //Complete and destroy login activity once successful
             finish()
             val intent = Intent(this, MainActivity::class.java)
@@ -106,7 +108,7 @@ class LoginActivity : AppCompatActivity() {
     private fun updateUiWithUser(model: LoggedInUserView) {
         val welcome = getString(R.string.welcome)
         val displayName = model.displayName
-        // TODO : initiate successful logged in experience
+        // TODO : уведомление об успешном входе
         Toast.makeText(
             applicationContext,
             "$welcome $displayName",
@@ -115,6 +117,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun showLoginFailed(@StringRes errorString: Int) {
+        // TODO : уведомление об ошибке
         Toast.makeText(applicationContext, errorString, Toast.LENGTH_SHORT).show()
     }
 
