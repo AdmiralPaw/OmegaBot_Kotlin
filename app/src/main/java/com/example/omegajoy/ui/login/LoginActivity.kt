@@ -9,16 +9,19 @@ import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.*
+import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.example.omegajoy.MainActivity
 import com.example.omegajoy.R
+import com.example.omegajoy.data.database.AppDatabaseApplication
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var loginViewModel: LoginViewModel
+    private val loginViewModel: LoginViewModel by viewModels {
+        LoginViewModelFactory((application as AppDatabaseApplication).loginRepository)
+    }
     var login_mode = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,6 +37,8 @@ class LoginActivity : AppCompatActivity() {
         val loading = findViewById<ProgressBar>(R.id.loading)
         val register_text = findViewById<TextView>(R.id.register_text)
         val login_text = findViewById<TextView>(R.id.login_text)
+
+        loginViewModel.preLogin()
 
         // TODO: refactor - переместить блок текста в нужное место
         register_text.setOnClickListener {
@@ -52,9 +57,6 @@ class LoginActivity : AppCompatActivity() {
                 login_mode = true
             }
         }
-
-        loginViewModel = ViewModelProvider(this, LoginViewModelFactory())
-            .get(LoginViewModel::class.java)
 
         loginViewModel.loginFormState.observe(this@LoginActivity, Observer {
             val loginState = it ?: return@Observer

@@ -19,6 +19,20 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     private val _loginResult = MutableLiveData<LoginResult>()
     val loginResult: LiveData<LoginResult> = _loginResult
 
+    fun preLogin() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = loginRepository.preLogin()
+
+            if (result is Result.Success) {
+                _loginResult.postValue(
+                    LoginResult(success = LoggedInUserView(displayName = result.data.displayName))
+                )
+            } else {
+                _loginResult.postValue(LoginResult(error = R.string.login_failed))
+            }
+        }
+    }
+
     fun login(username: String, password: String, login_mode: Boolean) {
         // can be launched in a separate asynchronous job
         viewModelScope.launch(Dispatchers.IO) {
@@ -32,7 +46,6 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
                 _loginResult.postValue(LoginResult(error = R.string.login_failed))
             }
         }
-
     }
 
     fun loginDataChanged(username: String, password: String) {
