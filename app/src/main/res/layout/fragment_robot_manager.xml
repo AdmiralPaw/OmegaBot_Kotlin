@@ -46,8 +46,8 @@
         android:layout_height="32dp"
         android:src="@drawable/ic_baseline_bluetooth_24"
         app:layout_constraintBottom_toBottomOf="@+id/button_to_menu"
-        app:layout_constraintEnd_toStartOf="@+id/textView2"
-        app:layout_constraintStart_toEndOf="@+id/button_to_menu"
+        app:layout_constraintEnd_toEndOf="@+id/button"
+        app:layout_constraintStart_toStartOf="@+id/button"
         app:layout_constraintTop_toTopOf="@+id/button_to_menu" />
 
     <ImageView
@@ -56,8 +56,8 @@
         android:layout_height="32dp"
         android:src="@drawable/ic_baseline_wifi_24"
         app:layout_constraintBottom_toBottomOf="@+id/button_to_home"
-        app:layout_constraintEnd_toStartOf="@+id/button_to_home"
-        app:layout_constraintStart_toEndOf="@+id/textView2"
+        app:layout_constraintEnd_toEndOf="@+id/button_add_device"
+        app:layout_constraintStart_toStartOf="@+id/button_add_device"
         app:layout_constraintTop_toTopOf="@+id/button_to_home" />
 
     <Button
@@ -75,7 +75,7 @@
         app:layout_constraintTop_toBottomOf="@+id/button_to_menu" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/button_add_device"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"

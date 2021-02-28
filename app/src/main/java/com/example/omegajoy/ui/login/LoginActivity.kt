@@ -1,6 +1,6 @@
 package com.example.omegajoy.ui.login
 
-import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -8,20 +8,21 @@ import android.text.TextWatcher
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.Toast
+import android.widget.*
+import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.example.omegajoy.MainActivity
 import com.example.omegajoy.R
+import com.example.omegajoy.data.database.AppDatabaseApplication
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var loginViewModel: LoginViewModel
+    private val loginViewModel: LoginViewModel by viewModels {
+        LoginViewModelFactory((application as AppDatabaseApplication).loginRepository)
+    }
+    var login_mode = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,9 +35,28 @@ class LoginActivity : AppCompatActivity() {
         val password = findViewById<EditText>(R.id.password)
         val login = findViewById<Button>(R.id.login)
         val loading = findViewById<ProgressBar>(R.id.loading)
+        val register_text = findViewById<TextView>(R.id.register_text)
+        val login_text = findViewById<TextView>(R.id.login_text)
 
-        loginViewModel = ViewModelProvider(this, LoginViewModelFactory())
-            .get(LoginViewModel::class.java)
+        loginViewModel.preLogin()
+
+        // TODO: refactor - переместить блок текста в нужное место
+        register_text.setOnClickListener {
+            if (register_text.textSize != 36F) {
+                register_text.textSize = 36F
+                login_text.textSize = 24F
+                login.text = getString(R.string.action_sign_in)
+                login_mode = false
+            }
+        }
+        login_text.setOnClickListener {
+            if (login_text.textSize != 36F) {
+                register_text.textSize = 24F
+                login_text.textSize = 36F
+                login.text = getString(R.string.action_log_in)
+                login_mode = true
+            }
+        }
 
         loginViewModel.loginFormState.observe(this@LoginActivity, Observer {
             val loginState = it ?: return@Observer
@@ -61,13 +81,16 @@ class LoginActivity : AppCompatActivity() {
             }
             if (loginResult.success != null) {
                 updateUiWithUser(loginResult.success)
-            }
-            setResult(Activity.RESULT_OK)
+                //TODO: что это?
+//                setResult(Activity.RESULT_OK)
 
-            //Complete and destroy login activity once successful
-            finish()
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+                //TODO: выполнение перехода к main_activity после входа
+                //Complete and destroy login activity once successful
+
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
         })
 
         username.afterTextChanged {
@@ -90,7 +113,8 @@ class LoginActivity : AppCompatActivity() {
                     EditorInfo.IME_ACTION_DONE ->
                         loginViewModel.login(
                             username.text.toString(),
-                            password.text.toString()
+                            password.text.toString(),
+                            login_mode
                         )
                 }
                 false
@@ -98,7 +122,7 @@ class LoginActivity : AppCompatActivity() {
 
             login.setOnClickListener {
                 loading.visibility = View.VISIBLE
-                loginViewModel.login(username.text.toString(), password.text.toString())
+                loginViewModel.login(username.text.toString(), password.text.toString(), login_mode)
             }
         }
     }
@@ -106,7 +130,7 @@ class LoginActivity : AppCompatActivity() {
     private fun updateUiWithUser(model: LoggedInUserView) {
         val welcome = getString(R.string.welcome)
         val displayName = model.displayName
-        // TODO : initiate successful logged in experience
+        // TODO : уведомление об успешном входе
         Toast.makeText(
             applicationContext,
             "$welcome $displayName",
@@ -115,6 +139,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun showLoginFailed(@StringRes errorString: Int) {
+        // TODO : уведомление об ошибке
         Toast.makeText(applicationContext, errorString, Toast.LENGTH_SHORT).show()
     }
 
@@ -138,6 +163,10 @@ class LoginActivity : AppCompatActivity() {
         window?.decorView?.systemUiVisibility = flags
         supportActionBar?.hide()
     }
+}
+
+fun Context.toast(message: String) {
+    Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
 }
 
 /**
