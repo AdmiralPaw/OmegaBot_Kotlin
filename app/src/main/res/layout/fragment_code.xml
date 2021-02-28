@@ -7,19 +7,19 @@
     tools:context=".ui.code.CodeFragment">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/preset_list"
+        android:id="@+id/recyclerview_preset_now"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/commands"
-        app:layout_constraintStart_toEndOf="@+id/categories"
+        app:layout_constraintEnd_toStartOf="@+id/recyclerview_commands"
+        app:layout_constraintStart_toEndOf="@+id/recyclerview_categories"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/categories"
+        android:id="@+id/recyclerview_categories"
         android:layout_width="145dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
@@ -30,7 +30,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/commands"
+        android:id="@+id/recyclerview_commands"
         android:layout_width="145dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
@@ -63,7 +63,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
-            android:id="@+id/imageButton7"
+            android:id="@+id/button_preset_left"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_weight="1"
@@ -72,7 +72,7 @@
             android:src="@drawable/ic_baseline_keyboard_arrow_left_24" />
 
         <ImageButton
-            android:id="@+id/imageButton9"
+            android:id="@+id/button_preset_top"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_weight="1"
@@ -81,7 +81,7 @@
             android:src="@drawable/ic_baseline_keyboard_arrow_up_24" />
 
         <ImageButton
-            android:id="@+id/imageButton6"
+            android:id="@+id/button_preset_bottom"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_weight="1"
@@ -90,7 +90,7 @@
             android:src="@drawable/ic_baseline_keyboard_arrow_down_24" />
 
         <ImageButton
-            android:id="@+id/imageButton8"
+            android:id="@+id/button_preset_right"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_weight="1"
@@ -99,7 +99,7 @@
             android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />
 
         <ImageButton
-            android:id="@+id/preset_button_list"
+            android:id="@+id/button_preset_blank"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_weight="1"

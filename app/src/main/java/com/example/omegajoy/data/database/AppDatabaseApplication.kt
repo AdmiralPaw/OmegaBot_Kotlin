@@ -9,4 +9,5 @@ class AppDatabaseApplication : Application() {
     val database by lazy { AppRoomDatabase.getDatabase(this) }
     val loginRepository by lazy { LoginRepository(database.userDao()) }
     val userRepository by lazy { database.userDao() }
+    val categoryRepository by lazy { database.categoryDao() }
 }

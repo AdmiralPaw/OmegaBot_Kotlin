@@ -8,8 +8,10 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupWithNavController
+import com.example.omegajoy.data.dao.CategoryDao
 import com.example.omegajoy.data.dao.UserDao
 import com.example.omegajoy.data.database.AppDatabaseApplication
+import com.example.omegajoy.data.database.AppRoomDatabase
 import com.google.android.material.navigation.NavigationView
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
@@ -23,6 +25,8 @@ class MainActivity : AppCompatActivity() {
     private var listener: EchoWebSocketListener? = null
     private var ws: WebSocket? = null
     private lateinit var userDao: UserDao
+    lateinit var categoryDao: CategoryDao
+    lateinit var database: AppRoomDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +48,8 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         userDao = (application as AppDatabaseApplication).userRepository
+        database = (application as AppDatabaseApplication).database
+        categoryDao = (application as AppDatabaseApplication).categoryRepository
 
         client = OkHttpClient()
         listener = EchoWebSocketListener()
