@@ -64,20 +64,26 @@ class LoginRepository(val userDao: UserDao) {
         // TODO: тут ли объявление клиента?
         Log.i("LoginDataSource", "client = OkHttpClient()")
         client = OkHttpClient()
+        val json_register = "{\"username\":\"$username\"," +
+                "\"password\":\"$password\"," +
+                "\"email\":\"$username@gmail.com\"}"
+        val json_login = "{\"username\":\"$username\"," +
+                "\"password\":\"$password\"," +
+                "\"fingerprint\":\"$username@gmail.com\"}"
         val json = when (login_mode) {
-            false -> "{\"username\":\"$username\"," +
-                    "\"password\":\"$password\"," +
-                    "\"email\":\"$username@gmail.com\"}"
-            true -> "{\"username\":\"$username\"," +
-                    "\"password\":\"$password\"," +
-                    "\"fingerprint\":\"$username@gmail.com\"}"
+            true -> json_login
+            false -> json_register
         }
-
-        val response = post("http://37.77.104.201:3000/auth", json, login_mode)
+        var response = post("http://37.77.104.201:3000/auth", json, login_mode)
         if (response.code != 200) {
-            throw Throwable("code is not 200")
+            return Result.Error(Exception("LoginException"))
         }
-        // TODO: handle loggedInUser authentication
+        if (!login_mode) {
+            response = post("http://37.77.104.201:3000/auth", json_login, true)
+            if (response.code != 200) {
+                return Result.Error(Exception("LoginException"))
+            }
+        }
         val user = LoggedInUser(java.util.UUID.randomUUID().toString(), username)
         val answer = JSONObject(response.body!!.string())
         userDao.insert(
