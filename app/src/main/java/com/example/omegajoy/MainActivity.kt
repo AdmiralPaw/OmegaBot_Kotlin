@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
 
 //        val toolbar: Toolbar = findViewById(R.id.toolbar)
 //        setSupportActionBar(toolbar)
-
+//        Some sheet
 //        val fab: FloatingActionButton = findViewById(R.id.fab)
 //        fab.setOnClickListener { view ->
 //            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
-    public fun openDrawer() {
+    fun openDrawer() {
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         drawerLayout.openDrawer(GravityCompat.START)
     }
