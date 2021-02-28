@@ -1,45 +1,23 @@
 package com.example.omegajoy.ui.home
 
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.ImageButton
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.example.omegajoy.MainActivity
 import com.example.omegajoy.R
+import com.example.omegajoy.ui.FullFrameFragment
+import com.jmedeisis.bugstick.Joystick
+import com.jmedeisis.bugstick.JoystickListener
+import java.util.*
 
 /**
  * An example full-screen fragment that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-class HomeFragment : Fragment() {
-    private val hideHandler = Handler()
-
-    @Suppress("InlinedApi")
-    private val hidePart2Runnable = Runnable {
-        // Delayed removal of status and navigation bar
-
-        // Note that some of these constants are new as of API 16 (Jelly Bean)
-        // and API 19 (KitKat). It is safe to use them, as they are inlined
-        // at compile-time and do nothing on earlier devices.
-        val flags =
-            View.SYSTEM_UI_FLAG_LOW_PROFILE or
-                    View.SYSTEM_UI_FLAG_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-        activity?.window?.decorView?.systemUiVisibility = flags
-        (activity as? AppCompatActivity)?.supportActionBar?.hide()
-    }
-    private var visible: Boolean = false
-    private val hideRunnable = Runnable { hide() }
-
+class HomeFragment : FullFrameFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,10 +25,9 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_home, container, false)
-//        val textView: TextView = root.findViewById(R.id.text_gallery)
-//        galleryViewModel.text.observe(viewLifecycleOwner, Observer {
-//            textView.text = it
-//        })
+
+        val joystickLeft = root.findViewById<Joystick>(R.id.joystick_left)
+
         val button_to_code: ImageButton = root.findViewById(R.id.button_to_code)
         button_to_code.setOnClickListener(
             Navigation.createNavigateOnClickListener(R.id.action_nav_home_to_nav_code)
@@ -60,91 +37,96 @@ class HomeFragment : Fragment() {
             (activity as MainActivity).openDrawer()
         }
 
+        joystickLeft.setJoystickListener(object : JoystickListener {
+            override fun onDown() {
+            }
+
+            override fun onDrag(degrees: Float, offset: Float) {
+                val data0 = ArrayList<Byte>()
+                data0.add(0, 0xFF.toByte())
+                data0.add(1, 0xFE.toByte())
+                data0.add(2, (100 and 0xFF).toByte())
+
+
+                //ArrayList обусловлен методом add для добавления данных
+                // в конец массива, ибо изначально кол-во байт данных не известно
+                for (dataByte in convertJoystickToDrive(
+                    angleConvert(degrees),
+                    distanceConvert(offset)
+                )!!) {
+                    data0.add(dataByte)
+                }
+
+                data0.add(0xFF.toByte())
+                (activity as MainActivity).send(data0)
+            }
+
+            override fun onUp() {
+            }
+        })
         return root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-        visible = true
-        //toggle()
+    fun angleConvert(degrees: Float): Int {
+        val angle: Int
+        if (degrees < 0)
+            angle = 360 + degrees.toInt()
+        else
+            angle = degrees.toInt()
+        return angle
     }
 
-    override fun onResume() {
-        super.onResume()
-        activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-
-        // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
-        delayedHide(100)
-    }
-//
-//    override fun onPause() {
-//        super.onPause()
-//        //activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-//
-//        // Clear the systemUiVisibility flag
-//        //activity?.window?.decorView?.systemUiVisibility = 0
-//        //show()
-//    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
-    private fun toggle() {
-        if (visible) {
-            hide()
-        } else {
-            show()
-        }
-    }
-
-    private fun hide() {
-        // Hide UI first
-        visible = false
-
-        // Schedule a runnable to remove the status and navigation bar after a delay
-        hideHandler.postDelayed(hidePart2Runnable, UI_ANIMATION_DELAY.toLong())
-    }
-
-    @Suppress("InlinedApi")
-    private fun show() {
-        // Show the system bar
-        visible = true
-
-        // Schedule a runnable to display UI elements after a delay
-        hideHandler.removeCallbacks(hidePart2Runnable)
-        (activity as? AppCompatActivity)?.supportActionBar?.show()
+    fun distanceConvert(offset: Float): Int {
+        return (offset * 100).toInt()
     }
 
     /**
-     * Schedules a call to hide() in [delayMillis], canceling any
-     * previously scheduled calls.
+     * @author AdmPaw
+     * @param angel угол от 0 до 360
+     * @param offset отклонение от 0 до 100
+     * @return два байта данных скорости и направления движения двигателей (гусениц) робота
+     * в соответствии с ПРОТОКОЛОМ
      */
-    private fun delayedHide(delayMillis: Int) {
-        hideHandler.removeCallbacks(hideRunnable)
-        hideHandler.postDelayed(hideRunnable, delayMillis.toLong())
-    }
-
-    companion object {
-        /**
-         * Whether or not the system UI should be auto-hidden after
-         * [AUTO_HIDE_DELAY_MILLIS] milliseconds.
-         */
-        private const val AUTO_HIDE = true
-
-        /**
-         * If [AUTO_HIDE] is set, the number of milliseconds to wait after
-         * user interaction before hiding the system UI.
-         */
-        private const val AUTO_HIDE_DELAY_MILLIS = 3000
-
-        /**
-         * Some older devices needs a small delay between UI widget updates
-         * and a change of the status and navigation bar.
-         */
-        private const val UI_ANIMATION_DELAY = 300
+    fun convertJoystickToDrive(angel: Int, offset: Int): ByteArray? {
+        val data = ByteArray(2)
+        //TODO добавить ссылку на объяснение типа данного движения
+        val x = Math.floor(offset * Math.cos(Math.toRadians(angel.toDouble())))
+            .toInt()
+        val y = Math.floor(offset * Math.sin(Math.toRadians(angel.toDouble())))
+            .toInt()
+        var left_engine = 0
+        var right_engine = 0
+        var left = 1
+        var right = 1
+        val rotate_speed = Math.abs(x)
+        if (x > 0) {
+            left_engine = y + rotate_speed
+            right_engine = y - rotate_speed
+        } else if (x < 0) {
+            left_engine = y - rotate_speed
+            right_engine = y + rotate_speed
+        } else {
+            left_engine = y
+            right_engine = y
+        }
+        //ПРОТОКОЛ диктует скорость от -100 до 100, где впоследствии преобразуется
+        // в промежуток от 0 до 100 со значением направления движения
+        if (left_engine > 100) left_engine = 100
+        if (left_engine < -100) left_engine = -100
+        if (right_engine > 100) right_engine = 100
+        if (right_engine < -100) right_engine = -100
+        if (left_engine < 0) {
+            left_engine = Math.abs(left_engine)
+            left = 0
+        }
+        if (right_engine < 0) {
+            right_engine = Math.abs(right_engine)
+            right = 0
+        }
+        //ПРОТОКОЛ диктует ставить направление движения (вперед - 1, назад - 0)
+        // в старший бит байта, остальные 7-мь бит заполнять значением скорости от 0 до 100
+        data[0] = (left shl 7 or (left_engine and 0xFF)).toByte()
+        data[1] = (right shl 7 or (right_engine and 0xFF)).toByte()
+        return data
     }
 }
