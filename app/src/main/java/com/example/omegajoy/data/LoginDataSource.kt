@@ -2,9 +2,12 @@ package com.example.omegajoy.data
 
 import android.util.Log
 import com.example.omegajoy.data.model.LoggedInUser
-import okhttp3.*
+import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
 import java.io.IOException
 
 
@@ -20,9 +23,16 @@ class LoginDataSource {
             // TODO: тут ли объявление клиента?
             Log.i("LoginDataSource", "client = OkHttpClient()")
             client = OkHttpClient()
-            val json = "{\"username\":\"" + username + "\"," +
-                    "\"password\":\"" + password + "\"," +
-                    "\"email\":\"" + username + "@gmail.com\"}"
+            val json = when (login_mode) {
+                false -> "{\"username\":\"$username\"," +
+                        "\"password\":\"$password\"," +
+                        "\"email\":\"$username@gmail.com\"}"
+                true -> "{\"username\":\"$username\"," +
+                        "\"password\":\"$password\"," +
+                        "\"fingerprint\":\"$username@gmail.com\"," +
+                        "\"User-Agent\":\"androidApp\"}"
+            }
+
             val response = post("http://37.77.104.201:3000/auth", json, login_mode)
             if (response.code != 200) {
                 throw Throwable("code is not 200")
@@ -49,8 +59,6 @@ class LoginDataSource {
             .url(full_url)
             .post(body)
             .build()
-
         return client.newCall(request).execute()
-
     }
 }
