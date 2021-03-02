@@ -7,12 +7,8 @@ import android.widget.Button
 import androidx.recyclerview.widget.RecyclerView
 import com.example.omegajoy.R
 
-class CategoryListAdapter(
-    private val values: List<String>,
-    private var codeFragment: CodeFragment
-) :
-    RecyclerView.Adapter<CategoryListAdapter.ViewHolder>() {
-
+class CommandListAdapter(private val values: List<String>, private var codeFragment: CodeFragment) :
+    RecyclerView.Adapter<CommandListAdapter.ViewHolder>() {
     override fun getItemCount() = values.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -24,7 +20,7 @@ class CategoryListAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.button?.text = values[position]
         holder.button?.setOnClickListener {
-            codeFragment.setupCommands((it as Button).text.toString())
+            codeFragment.addCommandToPreset((it as Button).text.toString())
         }
     }
 
@@ -36,3 +32,4 @@ class CategoryListAdapter(
         }
     }
 }
+

@@ -8,4 +8,13 @@
         <item name="android:background">@color/black_visibility_40</item>
         <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
     </style>
+
+    <style name="RoundedRectangle">
+        <item name="android:shape">rectangle</item>
+        <item name="color">@color/light_gray_visibility_90</item>
+        <item name="android:topLeftRadius">10dp</item>
+        <item name="android:topRightRadius">10dp</item>
+        <item name="android:bottomLeftRadius">10dp</item>
+        <item name="android:bottomRightRadius">10dp</item>
+    </style>
 </resources>

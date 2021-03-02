@@ -10,9 +10,9 @@
         android:id="@+id/recyclerview_preset_now"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/recyclerview_commands"
         app:layout_constraintStart_toEndOf="@+id/recyclerview_categories"
@@ -20,7 +20,7 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview_categories"
-        android:layout_width="145dp"
+        android:layout_width="200dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
@@ -31,7 +31,7 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview_commands"
-        android:layout_width="145dp"
+        android:layout_width="200dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
@@ -67,7 +67,7 @@
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_weight="1"
-            android:contentDescription="TODO"
+            android:contentDescription="leftButton"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_baseline_keyboard_arrow_left_24" />
 
@@ -76,7 +76,7 @@
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_weight="1"
-            android:contentDescription="TODO"
+            android:contentDescription="topButton"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_baseline_keyboard_arrow_up_24" />
 
@@ -85,7 +85,7 @@
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_weight="1"
-            android:contentDescription="TODO"
+            android:contentDescription="bottomButton"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_baseline_keyboard_arrow_down_24" />
 
@@ -94,7 +94,7 @@
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_weight="1"
-            android:contentDescription="TODO"
+            android:contentDescription="rightButton"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />
 
@@ -103,7 +103,7 @@
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_weight="1"
-            android:contentDescription="TODO"
+            android:contentDescription="blankButton"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_baseline_storage_24" />
 

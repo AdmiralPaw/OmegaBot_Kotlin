@@ -4,17 +4,22 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.omegajoy.data.dao.CategoryDao
-import com.example.omegajoy.data.dao.UserDao
-import com.example.omegajoy.data.entities.Category
-import com.example.omegajoy.data.entities.User
+import com.example.omegajoy.data.dao.*
+import com.example.omegajoy.data.entities.*
 
 // Annotates class to be a Room Database with a table (entity) of the Word class
-@Database(entities = [User::class, Category::class], version = 1, exportSchema = false)
+@Database(
+    entities = [User::class, Category::class, Command::class, Preset::class, CommandAndPreset::class],
+    version = 1,
+    exportSchema = false
+)
 abstract class AppRoomDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
     abstract fun categoryDao(): CategoryDao
+    abstract fun commandDao(): CommandDao
+    abstract fun presetDao(): PresetDao
+    abstract fun commandAndPresetDao(): CommandAndPresetDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the
@@ -30,7 +35,7 @@ abstract class AppRoomDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppRoomDatabase::class.java,
                     "database"
-                ).createFromAsset("app.db").build()
+                ).createFromAsset("database.db").build()
                 INSTANCE = instance
                 // return instance
                 instance

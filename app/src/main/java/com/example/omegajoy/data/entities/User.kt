@@ -3,7 +3,7 @@ package com.example.omegajoy.data.entities
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(tableName = "user")
 data class User(
     @PrimaryKey var id: String,
     var access_token: String?,

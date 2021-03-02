@@ -7,5 +7,5 @@ import com.example.omegajoy.data.entities.Category
 @Dao
 interface CategoryDao {
     @Query("SELECT * FROM category")
-    fun getAll(): List<Category>
+    suspend fun getAll(): List<Category>
 }

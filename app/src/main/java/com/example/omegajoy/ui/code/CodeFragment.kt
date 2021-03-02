@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.omegajoy.MainActivity
 import com.example.omegajoy.R
-import com.example.omegajoy.data.dao.CategoryDao
 import com.example.omegajoy.ui.FullFrameFragment
 
 /**
@@ -20,9 +19,17 @@ import com.example.omegajoy.ui.FullFrameFragment
  * status bar and navigation/system bar) with user interaction.
  */
 class CodeFragment : FullFrameFragment() {
-    private lateinit var presetButtonNow: String
+    private var presetButtonNow: String = "blankButton"
     private lateinit var categoryRecyclerView: RecyclerView
-    private val codeViewModel: CodeViewModel by viewModels {
+    private lateinit var commandRecyclerView: RecyclerView
+    private lateinit var presetRecyclerView: RecyclerView
+    private lateinit var buttonPresetLeft: ImageButton
+    private lateinit var buttonPresetTop: ImageButton
+    private lateinit var buttonPresetBottom: ImageButton
+    private lateinit var buttonPresetRight: ImageButton
+    private lateinit var buttonPresetBlank: ImageButton
+
+    val codeViewModel: CodeViewModel by viewModels {
         CodeViewModelFactory((activity as MainActivity).database)
     }
 
@@ -42,30 +49,84 @@ class CodeFragment : FullFrameFragment() {
             (activity as MainActivity).openDrawer()
         }
 
-        val buttonPresetLeft: ImageButton = root.findViewById(R.id.button_preset_left)
-        val buttonPresetTop: ImageButton = root.findViewById(R.id.button_preset_right)
-        val buttonPresetBottom: ImageButton = root.findViewById(R.id.button_preset_bottom)
-        val buttonPresetRight: ImageButton = root.findViewById(R.id.button_preset_right)
-        val buttonPresetBlank: ImageButton = root.findViewById(R.id.button_preset_blank)
+        buttonPresetLeft = root.findViewById(R.id.button_preset_left)
+        buttonPresetTop = root.findViewById(R.id.button_preset_top)
+        buttonPresetBottom = root.findViewById(R.id.button_preset_bottom)
+        buttonPresetRight = root.findViewById(R.id.button_preset_right)
+        buttonPresetBlank = root.findViewById(R.id.button_preset_blank)
         categoryRecyclerView = root.findViewById(R.id.recyclerview_categories)
+        commandRecyclerView = root.findViewById(R.id.recyclerview_commands)
+        presetRecyclerView = root.findViewById(R.id.recyclerview_preset_now)
+
+        commandRecyclerView.layoutManager = LinearLayoutManager(activity)
+        categoryRecyclerView.layoutManager = LinearLayoutManager(activity)
+        presetRecyclerView.layoutManager = LinearLayoutManager(activity)
 
         codeViewModel.categoryList.observe(viewLifecycleOwner, Observer {
             val categoryList = it ?: return@Observer
 
-            categoryRecyclerView.layoutManager = LinearLayoutManager(activity)
             categoryRecyclerView.adapter =
-                CategoryListAdapter(categoryList.names)
+                CategoryListAdapter(categoryList.names, this)
         })
 
+        codeViewModel.commandList.observe(viewLifecycleOwner, Observer {
+            val commandList = it ?: return@Observer
+
+            commandRecyclerView.adapter =
+                CommandListAdapter(commandList.names, this)
+        })
+
+        presetRecyclerView.adapter = PresetListAdapter(listOf(), this)
+        codeViewModel.presetList.observe(viewLifecycleOwner, Observer {
+            val presetList = it ?: return@Observer
+
+            (presetRecyclerView.adapter as PresetListAdapter).update(
+                presetList.commands.map { command -> "${command.name}" }
+            )
+        })
+
+        setupButtons()
         codeViewModel.preLoad()
-        presetButtonNow = buttonPresetBlank.id.toString()
 
         return root
     }
 
-    private fun setupRecyclerViews(categoryDao: CategoryDao) {
-        categoryRecyclerView.layoutManager = LinearLayoutManager(activity)
-        categoryRecyclerView.adapter =
-            CategoryListAdapter(categoryDao.getAll().map { "${it.name}" })
+    private fun setupButtons() {
+        codeViewModel.presetButtonNow = presetButtonNow
+        buttonPresetLeft.setOnClickListener { buttonClickAction(it) }
+        buttonPresetLeft.setOnClickListener { buttonClickAction(it) }
+        buttonPresetTop.setOnClickListener { buttonClickAction(it) }
+        buttonPresetBottom.setOnClickListener { buttonClickAction(it) }
+        buttonPresetRight.setOnClickListener { buttonClickAction(it) }
+        buttonPresetBlank.setOnClickListener { buttonClickAction(it) }
+    }
+
+    private fun buttonClickAction(view: View) {
+        presetButtonNow = (view as ImageButton).contentDescription.toString()
+        codeViewModel.presetButtonNow = presetButtonNow
+        codeViewModel.switchPresetByButtonName()
+        resetAllButtons()
+        view.isPressed = true
+    }
+
+    fun resetAllButtons() {
+        buttonPresetLeft.isPressed = false
+        buttonPresetTop.isPressed = false
+        buttonPresetBottom.isPressed = false
+        buttonPresetRight.isPressed = false
+        buttonPresetBlank.isPressed = false
+    }
+
+
+    fun setupCommands(name: String) {
+        codeViewModel.loadCommandsByCategoryName(name)
+    }
+
+    fun addCommandToPreset(name: String) {
+        codeViewModel.addCommandToPreset(name)
+    }
+
+    fun removeCommandFromPreset(position: Int) {
+        codeViewModel.removeCommandFromPreset(position)
     }
 }
