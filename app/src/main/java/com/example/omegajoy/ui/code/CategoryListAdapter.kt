@@ -3,9 +3,9 @@ package com.example.omegajoy.ui.code
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import androidx.recyclerview.widget.RecyclerView
 import com.example.omegajoy.R
+import com.google.android.material.button.MaterialButton
 
 class CategoryListAdapter(
     private val values: List<String>,
@@ -24,12 +24,12 @@ class CategoryListAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.button?.text = values[position]
         holder.button?.setOnClickListener {
-            codeFragment.setupCommands((it as Button).text.toString())
+            codeFragment.setupCommands((it as MaterialButton).text.toString())
         }
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var button: Button? = null
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        var button: MaterialButton? = null
 
         init {
             button = itemView.findViewById(R.id.button_category_item)

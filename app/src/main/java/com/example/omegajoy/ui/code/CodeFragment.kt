@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.omegajoy.MainActivity
 import com.example.omegajoy.R
 import com.example.omegajoy.ui.FullFrameFragment
+import com.google.android.material.button.MaterialButton
 
 /**
  * An example full-screen fragment that shows and hides the system UI (i.e.
@@ -23,11 +24,11 @@ class CodeFragment : FullFrameFragment() {
     private lateinit var categoryRecyclerView: RecyclerView
     private lateinit var commandRecyclerView: RecyclerView
     private lateinit var presetRecyclerView: RecyclerView
-    private lateinit var buttonPresetLeft: ImageButton
-    private lateinit var buttonPresetTop: ImageButton
-    private lateinit var buttonPresetBottom: ImageButton
-    private lateinit var buttonPresetRight: ImageButton
-    private lateinit var buttonPresetBlank: ImageButton
+    private lateinit var buttonPresetLeft: MaterialButton
+    private lateinit var buttonPresetTop: MaterialButton
+    private lateinit var buttonPresetBottom: MaterialButton
+    private lateinit var buttonPresetRight: MaterialButton
+    private lateinit var buttonPresetBlank: MaterialButton
 
     val codeViewModel: CodeViewModel by viewModels {
         CodeViewModelFactory((activity as MainActivity).database)
@@ -93,30 +94,52 @@ class CodeFragment : FullFrameFragment() {
 
     private fun setupButtons() {
         codeViewModel.presetButtonNow = presetButtonNow
-        buttonPresetLeft.setOnClickListener { buttonClickAction(it) }
-        buttonPresetLeft.setOnClickListener { buttonClickAction(it) }
-        buttonPresetTop.setOnClickListener { buttonClickAction(it) }
-        buttonPresetBottom.setOnClickListener { buttonClickAction(it) }
-        buttonPresetRight.setOnClickListener { buttonClickAction(it) }
-        buttonPresetBlank.setOnClickListener { buttonClickAction(it) }
+        buttonPresetBlank.isChecked = true
+        buttonPresetLeft.addOnCheckedChangeListener { button, isChecked ->
+            (buttonClickAction(
+                button,
+                isChecked
+            ))
+        }
+        buttonPresetLeft.addOnCheckedChangeListener { button, isChecked ->
+            (buttonClickAction(
+                button,
+                isChecked
+            ))
+        }
+        buttonPresetTop.addOnCheckedChangeListener { button, isChecked ->
+            (buttonClickAction(
+                button,
+                isChecked
+            ))
+        }
+        buttonPresetBottom.addOnCheckedChangeListener { button, isChecked ->
+            (buttonClickAction(
+                button,
+                isChecked
+            ))
+        }
+        buttonPresetRight.addOnCheckedChangeListener { button, isChecked ->
+            (buttonClickAction(
+                button,
+                isChecked
+            ))
+        }
+        buttonPresetBlank.addOnCheckedChangeListener { button, isChecked ->
+            (buttonClickAction(
+                button,
+                isChecked
+            ))
+        }
     }
 
-    private fun buttonClickAction(view: View) {
-        presetButtonNow = (view as ImageButton).contentDescription.toString()
-        codeViewModel.presetButtonNow = presetButtonNow
-        codeViewModel.switchPresetByButtonName()
-        resetAllButtons()
-        view.isPressed = true
+    private fun buttonClickAction(view: MaterialButton, isChecked: Boolean) {
+        if (isChecked) {
+            presetButtonNow = view.contentDescription.toString()
+            codeViewModel.presetButtonNow = presetButtonNow
+            codeViewModel.switchPresetByButtonName()
+        }
     }
-
-    fun resetAllButtons() {
-        buttonPresetLeft.isPressed = false
-        buttonPresetTop.isPressed = false
-        buttonPresetBottom.isPressed = false
-        buttonPresetRight.isPressed = false
-        buttonPresetBlank.isPressed = false
-    }
-
 
     fun setupCommands(name: String) {
         codeViewModel.loadCommandsByCategoryName(name)
