@@ -5,15 +5,14 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "command",
     foreignKeys = [ForeignKey(
         entity = Category::class,
         parentColumns = ["id"],
-        childColumns = ["category_id"]
+        childColumns = ["categoryId"]
     )]
 )
 data class Command(
-    @PrimaryKey var id: Int,
-    var name: String?,
-    var category_id: Int?
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val name: String,
+    val categoryId: Int
 )

@@ -12,6 +12,10 @@ import com.example.omegajoy.ui.FullFrameFragment
 import com.jmedeisis.bugstick.Joystick
 import com.jmedeisis.bugstick.JoystickListener
 import java.util.*
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.floor
+import kotlin.math.sin
 
 /**
  * An example full-screen fragment that shows and hides the system UI (i.e.
@@ -28,12 +32,12 @@ class HomeFragment : FullFrameFragment() {
 
         val joystickLeft = root.findViewById<Joystick>(R.id.joystick_left)
 
-        val button_to_code: ImageButton = root.findViewById(R.id.button_to_code)
-        button_to_code.setOnClickListener(
+        val buttonToCode: ImageButton = root.findViewById(R.id.button_to_code)
+        buttonToCode.setOnClickListener(
             Navigation.createNavigateOnClickListener(R.id.action_nav_home_to_nav_code)
         )
-        val button_to_menu: ImageButton = root.findViewById(R.id.button_to_menu)
-        button_to_menu.setOnClickListener {
+        val buttonToMenu: ImageButton = root.findViewById(R.id.button_to_menu)
+        buttonToMenu.setOnClickListener {
             (activity as MainActivity).openDrawer()
         }
 
@@ -53,7 +57,7 @@ class HomeFragment : FullFrameFragment() {
                 for (dataByte in convertJoystickToDrive(
                     angleConvert(degrees),
                     distanceConvert(offset)
-                )!!) {
+                )) {
                     data0.add(dataByte)
                 }
 
@@ -68,12 +72,10 @@ class HomeFragment : FullFrameFragment() {
     }
 
     fun angleConvert(degrees: Float): Int {
-        val angle: Int
-        if (degrees < 0)
-            angle = 360 + degrees.toInt()
+        return if (degrees < 0)
+            360 + degrees.toInt()
         else
-            angle = degrees.toInt()
-        return angle
+            degrees.toInt()
     }
 
     fun distanceConvert(offset: Float): Int {
@@ -87,46 +89,50 @@ class HomeFragment : FullFrameFragment() {
      * @return два байта данных скорости и направления движения двигателей (гусениц) робота
      * в соответствии с ПРОТОКОЛОМ
      */
-    fun convertJoystickToDrive(angel: Int, offset: Int): ByteArray? {
+    fun convertJoystickToDrive(angel: Int, offset: Int): ByteArray {
         val data = ByteArray(2)
         //TODO добавить ссылку на объяснение типа данного движения
-        val x = Math.floor(offset * Math.cos(Math.toRadians(angel.toDouble())))
+        val x = floor(offset * cos(Math.toRadians(angel.toDouble())))
             .toInt()
-        val y = Math.floor(offset * Math.sin(Math.toRadians(angel.toDouble())))
+        val y = floor(offset * sin(Math.toRadians(angel.toDouble())))
             .toInt()
-        var left_engine = 0
-        var right_engine = 0
+        var leftEngine: Int
+        var rightEngine: Int
         var left = 1
         var right = 1
-        val rotate_speed = Math.abs(x)
-        if (x > 0) {
-            left_engine = y + rotate_speed
-            right_engine = y - rotate_speed
-        } else if (x < 0) {
-            left_engine = y - rotate_speed
-            right_engine = y + rotate_speed
-        } else {
-            left_engine = y
-            right_engine = y
+        val rotateSpeed = abs(x)
+        when {
+            x > 0 -> {
+                leftEngine = y + rotateSpeed
+                rightEngine = y - rotateSpeed
+            }
+            x < 0 -> {
+                leftEngine = y - rotateSpeed
+                rightEngine = y + rotateSpeed
+            }
+            else -> {
+                leftEngine = y
+                rightEngine = y
+            }
         }
         //ПРОТОКОЛ диктует скорость от -100 до 100, где впоследствии преобразуется
         // в промежуток от 0 до 100 со значением направления движения
-        if (left_engine > 100) left_engine = 100
-        if (left_engine < -100) left_engine = -100
-        if (right_engine > 100) right_engine = 100
-        if (right_engine < -100) right_engine = -100
-        if (left_engine < 0) {
-            left_engine = Math.abs(left_engine)
+        if (leftEngine > 100) leftEngine = 100
+        if (leftEngine < -100) leftEngine = -100
+        if (rightEngine > 100) rightEngine = 100
+        if (rightEngine < -100) rightEngine = -100
+        if (leftEngine < 0) {
+            leftEngine = abs(leftEngine)
             left = 0
         }
-        if (right_engine < 0) {
-            right_engine = Math.abs(right_engine)
+        if (rightEngine < 0) {
+            rightEngine = abs(rightEngine)
             right = 0
         }
         //ПРОТОКОЛ диктует ставить направление движения (вперед - 1, назад - 0)
         // в старший бит байта, остальные 7-мь бит заполнять значением скорости от 0 до 100
-        data[0] = (left shl 7 or (left_engine and 0xFF)).toByte()
-        data[1] = (right shl 7 or (right_engine and 0xFF)).toByte()
+        data[0] = (left shl 7 or (leftEngine and 0xFF)).toByte()
+        data[1] = (right shl 7 or (rightEngine and 0xFF)).toByte()
         return data
     }
 }

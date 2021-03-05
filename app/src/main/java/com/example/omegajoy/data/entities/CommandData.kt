@@ -5,23 +5,22 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "command_and_preset",
     foreignKeys = [
         ForeignKey(
             entity = Command::class,
             parentColumns = ["id"],
-            childColumns = ["command_id"]
+            childColumns = ["commandId"]
         ),
         ForeignKey(
-            entity = Preset::class,
+            entity = Data::class,
             parentColumns = ["id"],
-            childColumns = ["preset_id"]
+            childColumns = ["dataId"]
         )
     ]
 )
-data class CommandAndPreset(
-    @PrimaryKey(autoGenerate = true) var id: Int = 0,
-    var command_id: Int,
-    var preset_id: Int,
+data class CommandData(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    var commandId: Int,
+    var dataId: Int,
     var position: Int
 )

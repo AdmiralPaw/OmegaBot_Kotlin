@@ -3,9 +3,9 @@ package com.example.omegajoy.data.entities
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "preset")
+@Entity
 data class Preset(
-    @PrimaryKey var id: Int,
-    var name: String?,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val name: String,
     var attachedButton: String?
 )

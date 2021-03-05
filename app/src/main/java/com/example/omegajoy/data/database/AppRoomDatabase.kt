@@ -9,17 +9,27 @@ import com.example.omegajoy.data.entities.*
 
 // Annotates class to be a Room Database with a table (entity) of the Word class
 @Database(
-    entities = [User::class, Category::class, Command::class, Preset::class, CommandAndPreset::class],
+    entities = [
+        User::class,
+        Category::class,
+        Command::class,
+        Preset::class,
+        PresetCommand::class,
+        CommandData::class,
+        Data::class,
+        PresetCommandData::class],
     version = 1,
     exportSchema = false
 )
 abstract class AppRoomDatabase : RoomDatabase() {
-
     abstract fun userDao(): UserDao
     abstract fun categoryDao(): CategoryDao
     abstract fun commandDao(): CommandDao
     abstract fun presetDao(): PresetDao
-    abstract fun commandAndPresetDao(): CommandAndPresetDao
+    abstract fun presetCommandDao(): PresetCommandDao
+    abstract fun presetCommandDataDao(): PresetCommandDataDao
+    abstract fun dataDao(): DataDao
+    abstract fun commandDataDao(): CommandDataDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the

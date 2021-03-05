@@ -77,13 +77,11 @@ class CodeFragment : FullFrameFragment() {
                 CommandListAdapter(commandList.names, this)
         })
 
-        presetRecyclerView.adapter = PresetListAdapter(listOf(), this)
-        codeViewModel.presetList.observe(viewLifecycleOwner, Observer {
+        presetRecyclerView.adapter = PresetListAdapter(this)
+        codeViewModel.presetItem.observe(viewLifecycleOwner, Observer {
             val presetList = it ?: return@Observer
 
-            (presetRecyclerView.adapter as PresetListAdapter).update(
-                presetList.commands.map { command -> "${command.name}" }
-            )
+            (presetRecyclerView.adapter as PresetListAdapter).submitList(presetList)
         })
 
         setupButtons()

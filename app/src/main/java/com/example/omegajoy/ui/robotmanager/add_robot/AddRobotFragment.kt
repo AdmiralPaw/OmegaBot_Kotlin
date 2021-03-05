@@ -17,7 +17,6 @@ import com.example.omegajoy.ui.FullFrameFragment
 
 
 class AddRobotFragment : FullFrameFragment() {
-    private val REQUEST_CODE_QR_SCAN = 101
     private lateinit var editTextId: EditText
 
     override fun onCreateView(
@@ -29,12 +28,12 @@ class AddRobotFragment : FullFrameFragment() {
 
         editTextId = root.findViewById(R.id.edit_text_id)
 
-        val button_to_home: ImageButton = root.findViewById(R.id.button_to_home)
-        button_to_home.setOnClickListener(
+        val buttonToHome: ImageButton = root.findViewById(R.id.button_to_home)
+        buttonToHome.setOnClickListener(
             Navigation.createNavigateOnClickListener(R.id.action_nav_add_robot_to_nav_home)
         )
-        val button_to_menu: ImageButton = root.findViewById(R.id.button_to_menu)
-        button_to_menu.setOnClickListener {
+        val buttonToMenu: ImageButton = root.findViewById(R.id.button_to_menu)
+        buttonToMenu.setOnClickListener {
             (activity as MainActivity).openDrawer()
         }
 
@@ -59,9 +58,6 @@ class AddRobotFragment : FullFrameFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode != Activity.RESULT_OK) {
-            if (data == null) return
-            //Getting the passed result
-            val result = data.getStringExtra("com.blikoon.qrcodescanner.error_decoding_image")
             return
         }
         if (requestCode == REQUEST_CODE_QR_SCAN) {
@@ -70,5 +66,9 @@ class AddRobotFragment : FullFrameFragment() {
             val result = data.getStringExtra("com.blikoon.qrcodescanner.got_qr_scan_relult")
             editTextId.setText(result)
         }
+    }
+
+    companion object {
+        private val REQUEST_CODE_QR_SCAN = 101
     }
 }

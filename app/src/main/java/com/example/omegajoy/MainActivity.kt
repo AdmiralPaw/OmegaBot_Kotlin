@@ -28,6 +28,9 @@ class MainActivity : AppCompatActivity() {
     lateinit var categoryDao: CategoryDao
     lateinit var database: AppRoomDatabase
 
+    // TODO: научиться передавать в навигации параметры
+    var lastPresetButton: String = "blankButton"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
