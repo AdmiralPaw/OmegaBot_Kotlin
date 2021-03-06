@@ -8,4 +8,18 @@ data class PresetItem(
     val command: Command,
     val data: List<UserData>,
     var position: Int
-)
+) {
+    fun toJSON(): String {
+        val header = "\"id\":\"${command.id}\""
+        val bodyItems = data.map {
+            "{\"name\":\"${it.name}\",\"data\":\"${it.data}\"}"
+        }
+        val body = when (bodyItems.isNullOrEmpty()) {
+            true -> ""
+            false -> bodyItems.reduce { total, next ->
+                "$total,$next"
+            }
+        }
+        return "{$header,\"data\":[$body]}"
+    }
+}

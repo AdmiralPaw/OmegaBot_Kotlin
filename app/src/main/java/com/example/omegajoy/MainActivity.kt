@@ -16,14 +16,13 @@ import com.google.android.material.navigation.NavigationView
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okio.ByteString
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var client: OkHttpClient
     val JSON: MediaType = "application/json; charset=utf-8".toMediaType()
     private var listener: EchoWebSocketListener? = null
-    private var ws: WebSocket? = null
+    var ws: WebSocket? = null
     private lateinit var userDao: UserDao
     lateinit var categoryDao: CategoryDao
     lateinit var database: AppRoomDatabase
@@ -71,17 +70,6 @@ class MainActivity : AppCompatActivity() {
     fun openDrawer() {
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         drawerLayout.openDrawer(GravityCompat.START)
-    }
-
-    fun send(command: ArrayList<Byte>) {
-        val command_str = StringBuilder()
-        for (data_byte: Byte in command) {
-            command_str.append(String.format("%02x", data_byte).toUpperCase())
-        }
-        ws?.send(
-            "{\"type\":\"cmd\"," +
-                    "\"body\":\"" + command_str + "\"}"
-        )
     }
 
     fun changeRobot(id: String) {

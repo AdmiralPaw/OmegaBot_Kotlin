@@ -28,4 +28,9 @@
     <string name="menu_home">Управление</string>
     <string name="sign_in">Регистрация</string>
     <string name="log_in">Вход</string>
+    <string name="leftbutton">leftButton</string>
+    <string name="topbutton">topButton</string>
+    <string name="bottombutton">bottomButton</string>
+    <string name="rightbutton">rightButton</string>
+    <string name="blankbutton">blankButton</string>
 </resources>

@@ -5,13 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.Toast
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
 import com.example.omegajoy.MainActivity
 import com.example.omegajoy.R
 import com.example.omegajoy.ui.FullFrameFragment
+import com.example.omegajoy.ui.code.PresetItem
 import com.jmedeisis.bugstick.Joystick
 import com.jmedeisis.bugstick.JoystickListener
-import java.util.*
+import okhttp3.WebSocket
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.floor
@@ -22,6 +26,11 @@ import kotlin.math.sin
  * status bar and navigation/system bar) with user interaction.
  */
 class HomeFragment : FullFrameFragment() {
+    private var webSocket: WebSocket? = null
+    private var presets: List<PresetList> = listOf()
+    val homeViewModel: HomeViewModel by viewModels {
+        HomeViewModelFactory((activity as MainActivity).database)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,6 +49,15 @@ class HomeFragment : FullFrameFragment() {
         buttonToMenu.setOnClickListener {
             (activity as MainActivity).openDrawer()
         }
+        val leftButton: ImageButton = root.findViewById(R.id.left_button)
+        val rightButton: ImageButton = root.findViewById(R.id.right_button)
+        val topButton: ImageButton = root.findViewById(R.id.top_button)
+        val bottomButton: ImageButton = root.findViewById(R.id.bottom_button)
+
+        leftButton.setOnClickListener { onClickPresetButton(it) }
+        rightButton.setOnClickListener { onClickPresetButton(it) }
+        topButton.setOnClickListener { onClickPresetButton(it) }
+        bottomButton.setOnClickListener { onClickPresetButton(it) }
 
         joystickLeft.setJoystickListener(object : JoystickListener {
             override fun onDown() {
@@ -62,13 +80,62 @@ class HomeFragment : FullFrameFragment() {
                 }
 
                 data0.add(0xFF.toByte())
-                (activity as MainActivity).send(data0)
+                send(data0)
             }
 
             override fun onUp() {
             }
         })
+
+        // TODO: получение от CodeFragment.kt листов пресетов
+        homeViewModel.preLoad(listOf(leftButton, rightButton, topButton, bottomButton))
+
+        homeViewModel.presetList.observe(viewLifecycleOwner, Observer {
+            val presetList = it ?: return@Observer
+
+            presets = presetList
+        })
+
+
+        webSocket = (activity as MainActivity).ws
+
         return root
+    }
+
+    fun send(command: ArrayList<Byte>) {
+        val commandStr = StringBuilder()
+        for (data_byte: Byte in command) {
+            commandStr.append(String.format("%02x", data_byte).toUpperCase())
+        }
+        webSocket?.send(
+            "{\"type\":\"cmd\"," +
+                    "\"body\":\"${commandStr}\"}"
+        )
+    }
+
+    fun sendPreset(presetList: PresetList) {
+        val commandsJSON = presetList.currentList.map { it.toJSON() }
+        for (command in commandsJSON) {
+            webSocket?.send(
+                "{\"type\":\"cmd\"," +
+                        "\"body\":\"${command}\"}"
+            )
+        }
+    }
+
+    fun onClickPresetButton(view: View) {
+        val preset = presets.find {
+            it.attachedButton == view.contentDescription
+        }
+        if (preset == null) {
+            Toast.makeText(
+                activity,
+                "Нет пресета на ${view.contentDescription}",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            sendPreset(preset)
+        }
     }
 
     fun angleConvert(degrees: Float): Int {
@@ -136,3 +203,8 @@ class HomeFragment : FullFrameFragment() {
         return data
     }
 }
+
+data class PresetList(
+    val currentList: List<PresetItem>,
+    val attachedButton: String
+)
