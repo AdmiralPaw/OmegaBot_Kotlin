@@ -118,7 +118,11 @@ class HomeFragment : FullFrameFragment() {
         for (command in commandsJSON) {
             webSocket?.send(
                 "{\"type\":\"cmd\"," +
-                        "\"body\":\"${command}\"}"
+                        "\"body\":${command}}"
+            )
+            println(
+                "{\"type\":\"cmd\"," +
+                        "\"body\":${command}}"
             )
         }
     }

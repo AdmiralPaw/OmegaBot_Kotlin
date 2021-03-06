@@ -12,7 +12,7 @@ data class PresetItem(
     fun toJSON(): String {
         val header = "\"id\":\"${command.id}\""
         val bodyItems = data.map {
-            "{\"name\":\"${it.name}\",\"data\":\"${it.data}\"}"
+            "{\"name\":\"${it.name}\",\"value\":\"${it.data}\"}"
         }
         val body = when (bodyItems.isNullOrEmpty()) {
             true -> ""
