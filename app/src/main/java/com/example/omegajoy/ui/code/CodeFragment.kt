@@ -8,6 +8,7 @@ import android.widget.ImageButton
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.omegajoy.MainActivity
@@ -78,6 +79,11 @@ class CodeFragment : FullFrameFragment() {
         })
 
         presetRecyclerView.adapter = PresetListAdapter(this)
+        val callback =
+            SimpleItemTouchHelperCallback(presetRecyclerView.adapter as PresetListAdapter)
+        val touchHelper = ItemTouchHelper(callback)
+        touchHelper.attachToRecyclerView(presetRecyclerView)
+
         codeViewModel.presetItem.observe(viewLifecycleOwner, Observer {
             val presetList = it ?: return@Observer
 
@@ -149,5 +155,9 @@ class CodeFragment : FullFrameFragment() {
 
     fun removeCommandFromPreset(position: Int) {
         codeViewModel.removeCommandFromPreset(position)
+    }
+
+    fun updateDataById(id: Int, data: String) {
+        codeViewModel.updateDataById(id, data)
     }
 }

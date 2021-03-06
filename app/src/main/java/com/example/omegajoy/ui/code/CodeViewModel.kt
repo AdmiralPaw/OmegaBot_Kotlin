@@ -6,8 +6,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.omegajoy.data.database.AppRoomDatabase
+import com.example.omegajoy.data.entities.Command
 import com.example.omegajoy.data.entities.Preset
 import com.example.omegajoy.data.entities.PresetCommand
+import com.example.omegajoy.data.entities.PresetCommandData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -17,6 +19,8 @@ class CodeViewModel(dataSource: AppRoomDatabase) : ViewModel() {
     private val presetCommandDao = dataSource.presetCommandDao()
     private val presetDao = dataSource.presetDao()
     val commandDataDao = dataSource.commandDataDao()
+    val presetCommandDataDao = dataSource.presetCommandDataDao()
+    val dataDao = dataSource.dataDao()
 
     private val _categoryList = MutableLiveData<CategoryList>()
     val categoryList: LiveData<CategoryList> = _categoryList
@@ -57,12 +61,22 @@ class CodeViewModel(dataSource: AppRoomDatabase) : ViewModel() {
             val latestPosition =
                 presetCommandDao.getLatestPositionByButtonName(presetButtonNow).max()
             val position = if (latestPosition == null) 0 else latestPosition + 1
-            presetCommandDao.insert(
+            val presetCommandId = presetCommandDao.insert(
                 PresetCommand(
                     commandId = command.id, presetId = preset.id,
                     position = position
                 )
             )
+            commandDataDao.getByCommandId(command.id).map {
+                val data = dataDao.getById(it.dataId)
+                presetCommandDataDao.insert(
+                    PresetCommandData(
+                        presetCommandId = presetCommandId.toInt(),
+                        commandDataId = it.id,
+                        data = data.defaultData
+                    )
+                )
+            }
             switchPresetByButtonName()
         }
     }
@@ -89,14 +103,13 @@ class CodeViewModel(dataSource: AppRoomDatabase) : ViewModel() {
                     presetCommandDao.getAllByButtonName(presetButtonNow).toMutableList()
                 _presetList.postValue(
                     commands.map {
-                        val command = it
-                        val data = commandDataDao.getDataByCommandId(it.id)
+                        val data = presetCommandDataDao.getDataByCommandId(it.id, it.position)
                         val position = presetCommands.first().position
                         val id = presetCommands.first().id
                         presetCommands.removeAt(0)
                         PresetItem(
                             id = id,
-                            command = command,
+                            command = Command(it.id, it.name, it.categoryId),
                             data = data,
                             position = position
                         )
@@ -105,6 +118,12 @@ class CodeViewModel(dataSource: AppRoomDatabase) : ViewModel() {
             } catch (error: Exception) {
                 Log.e("[SwitchPreset]", error.toString())
             }
+        }
+    }
+
+    fun updateDataById(id: Int, data: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            presetCommandDataDao.updateDataById(id, data)
         }
     }
 }

@@ -9,7 +9,7 @@ import com.example.omegajoy.data.entities.PresetCommand
 @Dao
 interface PresetCommandDao {
     @Insert
-    suspend fun insert(PresetCommand: PresetCommand)
+    suspend fun insert(PresetCommand: PresetCommand): Long
 
     @Update
     suspend fun update(PresetCommand: PresetCommand)
