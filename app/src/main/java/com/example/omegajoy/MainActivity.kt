@@ -28,7 +28,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var database: AppRoomDatabase
 
     // TODO: научиться передавать в навигации параметры
-    var lastPresetButton: String = "blankButton"
+    lateinit var latestPresetButton: String
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +49,8 @@ class MainActivity : AppCompatActivity() {
             ), drawerLayout
         )
         navView.setupWithNavController(navController)
+
+        latestPresetButton = getString(R.string.blankbutton)
 
         userDao = (application as AppDatabaseApplication).userRepository
         database = (application as AppDatabaseApplication).database
