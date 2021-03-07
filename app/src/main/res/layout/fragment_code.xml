@@ -7,37 +7,37 @@
     tools:context=".ui.code.CodeFragment">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/preset_list"
+        android:id="@+id/recyclerview_preset_now"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/commands"
-        app:layout_constraintStart_toEndOf="@+id/categories"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+        app:layout_constraintEnd_toStartOf="@+id/recyclerview_commands"
+        app:layout_constraintStart_toEndOf="@+id/recyclerview_categories"
+        app:layout_constraintTop_toBottomOf="@+id/toggle_group" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/categories"
-        android:layout_width="145dp"
+        android:id="@+id/recyclerview_categories"
+        android:layout_width="200dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        app:layout_constraintTop_toBottomOf="@+id/toggle_group"
         app:layout_constraintVertical_bias="0.0" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/commands"
-        android:layout_width="145dp"
+        android:id="@+id/recyclerview_commands"
+        android:layout_width="200dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/toggle_group" />
 
     <ImageButton
         android:id="@+id/button_to_menu"
@@ -52,62 +52,67 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggle_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:orientation="horizontal"
         app:layout_constraintEnd_toStartOf="@+id/imageButton5"
         app:layout_constraintStart_toEndOf="@+id/button_to_menu"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:singleSelection="true"
+        app:selectionRequired="true">
 
-        <ImageButton
-            android:id="@+id/imageButton7"
+        <Button
+            android:id="@+id/button_preset_left"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_weight="1"
-            android:contentDescription="TODO"
+            android:contentDescription="@string/leftbutton"
+            app:icon="@drawable/ic_baseline_keyboard_arrow_left_24" />
+
+        <Button
+            android:id="@+id/button_preset_top"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_weight="1"
+            android:contentDescription="@string/topbutton"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_baseline_keyboard_arrow_left_24" />
+            app:icon="@drawable/ic_baseline_keyboard_arrow_up_24" />
 
-        <ImageButton
-            android:id="@+id/imageButton9"
+        <Button
+            android:id="@+id/button_preset_bottom"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_weight="1"
-            android:contentDescription="TODO"
+            android:contentDescription="@string/bottombutton"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_baseline_keyboard_arrow_up_24" />
+            app:icon="@drawable/ic_baseline_keyboard_arrow_down_24" />
 
-        <ImageButton
-            android:id="@+id/imageButton6"
+        <Button
+            android:id="@+id/button_preset_right"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_weight="1"
-            android:contentDescription="TODO"
+            android:contentDescription="@string/rightbutton"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_baseline_keyboard_arrow_down_24" />
+            app:icon="@drawable/ic_baseline_keyboard_arrow_right_24" />
 
-        <ImageButton
-            android:id="@+id/imageButton8"
+        <Button
+            android:id="@+id/button_preset_blank"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_weight="1"
-            android:contentDescription="TODO"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />
-
-        <ImageButton
-            android:id="@+id/preset_button_list"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_weight="1"
-            android:contentDescription="TODO"
+            android:contentDescription="@string/blankbutton"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_baseline_storage_24" />
+            app:icon="@drawable/ic_baseline_storage_24" />
 
-    </LinearLayout>
+    </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <ImageButton
         android:id="@+id/button_to_home"

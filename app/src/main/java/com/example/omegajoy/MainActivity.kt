@@ -8,21 +8,27 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupWithNavController
+import com.example.omegajoy.data.dao.CategoryDao
 import com.example.omegajoy.data.dao.UserDao
 import com.example.omegajoy.data.database.AppDatabaseApplication
+import com.example.omegajoy.data.database.AppRoomDatabase
 import com.google.android.material.navigation.NavigationView
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okio.ByteString
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var client: OkHttpClient
     val JSON: MediaType = "application/json; charset=utf-8".toMediaType()
     private var listener: EchoWebSocketListener? = null
-    private var ws: WebSocket? = null
+    var ws: WebSocket? = null
     private lateinit var userDao: UserDao
+    lateinit var categoryDao: CategoryDao
+    lateinit var database: AppRoomDatabase
+
+    // TODO: научиться передавать в навигации параметры
+    var lastPresetButton: String = "blankButton"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +50,8 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         userDao = (application as AppDatabaseApplication).userRepository
+        database = (application as AppDatabaseApplication).database
+        categoryDao = (application as AppDatabaseApplication).categoryRepository
 
         client = OkHttpClient()
         listener = EchoWebSocketListener()
@@ -62,17 +70,6 @@ class MainActivity : AppCompatActivity() {
     fun openDrawer() {
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         drawerLayout.openDrawer(GravityCompat.START)
-    }
-
-    fun send(command: ArrayList<Byte>) {
-        val command_str = StringBuilder()
-        for (data_byte: Byte in command) {
-            command_str.append(String.format("%02x", data_byte).toUpperCase())
-        }
-        ws?.send(
-            "{\"type\":\"cmd\"," +
-                    "\"body\":\"" + command_str + "\"}"
-        )
     }
 
     fun changeRobot(id: String) {
