@@ -12,4 +12,7 @@ interface CommandDataDao {
 
     @Query("SELECT * FROM CommandData WHERE CommandData.commandId = :id")
     suspend fun getByCommandId(id: Int): List<CommandData>
+
+    @Query("SELECT * FROM CommandData WHERE id = :id")
+    suspend fun getById(id: Int): CommandData
 }

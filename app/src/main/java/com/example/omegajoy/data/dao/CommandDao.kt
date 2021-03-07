@@ -17,4 +17,7 @@ interface CommandDao {
 
     @Query("SELECT * FROM Command WHERE name = :name")
     suspend fun getByName(name: String): Command
+
+    @Query("SELECT * FROM Command WHERE id = :id")
+    suspend fun getById(id: Int): Command
 }

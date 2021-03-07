@@ -1,13 +1,13 @@
 package com.example.omegajoy.ui.code
 
-import com.example.omegajoy.data.dao.UserData
 import com.example.omegajoy.data.entities.Command
+import com.example.omegajoy.data.entities.PresetCommand
 
 data class PresetItem(
     val id: Int,
+    var position: Int,
     val command: Command,
-    val data: List<UserData>,
-    var position: Int
+    val data: List<UserData>
 ) {
     fun toJSON(): String {
         val header = "\"id\":\"${command.id}\""
@@ -22,4 +22,23 @@ data class PresetItem(
         }
         return "{$header,\"data\":[$body]}"
     }
+
+    fun toPresetCommandNoPresetId(): PresetCommand {
+        return PresetCommand(
+            id = id,
+            commandId = command.id,
+            presetId = -1,
+            position = position
+        )
+    }
 }
+
+data class UserData(
+    val id: Int,
+    val name: String,
+    val type: String,
+    val valueMin: Int?,
+    val valueMax: Int?,
+    var data: String,
+    val position: Int
+)

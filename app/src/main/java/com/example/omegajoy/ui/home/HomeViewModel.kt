@@ -7,15 +7,19 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.omegajoy.data.database.AppRoomDatabase
-import com.example.omegajoy.data.entities.Command
 import com.example.omegajoy.ui.code.PresetItem
+import com.example.omegajoy.ui.code.UserData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class HomeViewModel(dataSource: AppRoomDatabase) : ViewModel() {
+    private val categoryDao = dataSource.categoryDao()
+    private val commandDao = dataSource.commandDao()
     private val presetCommandDao = dataSource.presetCommandDao()
     private val presetDao = dataSource.presetDao()
-    private val presetCommandDataDao = dataSource.presetCommandDataDao()
+    val commandDataDao = dataSource.commandDataDao()
+    val presetCommandDataDao = dataSource.presetCommandDataDao()
+    val dataDao = dataSource.dataDao()
 
     private val _presetList = MutableLiveData<List<PresetList>>()
     val presetList: LiveData<List<PresetList>> = _presetList
@@ -30,24 +34,38 @@ class HomeViewModel(dataSource: AppRoomDatabase) : ViewModel() {
     fun getPresetByButtonName(presetButtonNames: List<String>) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val temp = mutableListOf<PresetList>()
-                for (presetButtonName in presetButtonNames) {
-                    val commands = presetDao.getCommandsByButtonName(presetButtonName)
+                val temp = presetButtonNames.map { presetButtonName ->
                     val presetCommands =
                         presetCommandDao.getAllByButtonName(presetButtonName).toMutableList()
-                    val rowPreset = commands.map {
-                        val data = presetCommandDataDao.getDataByCommandId(it.id, it.position)
-                        val position = presetCommands.first().position
-                        val id = presetCommands.first().id
-                        presetCommands.removeAt(0)
+                    val rowPreset = presetCommands.map { presetCommand ->
+                        val command = commandDao.getById(presetCommand.commandId)
+                        val presetCommandData =
+                            presetCommandDataDao.getByPresetCommandId(presetCommand.id)
+                        val data = presetCommandData.map {
+                            val commandData = commandDataDao.getById(it.commandDataId)
+                            val dataInfo = dataDao.getById(commandData.dataId)
+                            UserData(
+                                id = it.id,
+                                name = dataInfo.name,
+                                type = dataInfo.type,
+                                valueMin = dataInfo.valueMin,
+                                valueMax = dataInfo.valueMax,
+                                data = it.data,
+                                position = commandData.position
+                            )
+                        }.sortedBy { it.position }
+
                         PresetItem(
-                            id = id,
-                            command = Command(it.id, it.name, it.categoryId),
-                            data = data,
-                            position = position
+                            id = presetCommand.id,
+                            position = presetCommand.position,
+                            command = command,
+                            data = data
                         )
                     }
-                    temp.add(PresetList(currentList = rowPreset, attachedButton = presetButtonName))
+                    PresetList(
+                        currentList = rowPreset,
+                        attachedButton = presetButtonName
+                    )
                 }
                 _presetList.postValue(temp)
             } catch (error: Exception) {

@@ -78,16 +78,14 @@ class CodeFragment : FullFrameFragment() {
                 CommandListAdapter(commandList.names, this)
         })
 
-        presetRecyclerView.adapter = PresetListAdapter(this)
+        presetRecyclerView.adapter = PresetListAdapter(mutableListOf(), this)
         val callback =
             SimpleItemTouchHelperCallback(presetRecyclerView.adapter as PresetListAdapter)
         val touchHelper = ItemTouchHelper(callback)
         touchHelper.attachToRecyclerView(presetRecyclerView)
 
-        codeViewModel.presetItem.observe(viewLifecycleOwner, Observer {
-            val presetList = it ?: return@Observer
-
-            (presetRecyclerView.adapter as PresetListAdapter).submitList(presetList)
+        codeViewModel.presetList.observe(viewLifecycleOwner, Observer {
+            (presetRecyclerView.adapter as PresetListAdapter).updateAll(it)
         })
 
         setupButtons()
