@@ -1,55 +1,38 @@
 package com.example.omegajoy.ui.code
 
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.ImageButton
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.omegajoy.MainActivity
 import com.example.omegajoy.R
+import com.example.omegajoy.ui.FullFrameFragment
+import com.google.android.material.button.MaterialButton
 
 /**
  * An example full-screen fragment that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-class CodeFragment : Fragment() {
-    private val hideHandler = Handler()
+class CodeFragment : FullFrameFragment() {
+    private lateinit var presetButtonNow: String
+    private lateinit var categoryRecyclerView: RecyclerView
+    private lateinit var commandRecyclerView: RecyclerView
+    private lateinit var presetRecyclerView: RecyclerView
+    private lateinit var buttonPresetLeft: MaterialButton
+    private lateinit var buttonPresetTop: MaterialButton
+    private lateinit var buttonPresetBottom: MaterialButton
+    private lateinit var buttonPresetRight: MaterialButton
+    private lateinit var buttonPresetBlank: MaterialButton
 
-    @Suppress("InlinedApi")
-    private val hidePart2Runnable = Runnable {
-        // Delayed removal of status and navigation bar
-
-        // Note that some of these constants are new as of API 16 (Jelly Bean)
-        // and API 19 (KitKat). It is safe to use them, as they are inlined
-        // at compile-time and do nothing on earlier devices.
-        val flags =
-            View.SYSTEM_UI_FLAG_LOW_PROFILE or
-                    View.SYSTEM_UI_FLAG_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-        activity?.window?.decorView?.systemUiVisibility = flags
-        (activity as? AppCompatActivity)?.supportActionBar?.hide()
-    }
-    private var visible: Boolean = false
-    private val hideRunnable = Runnable { hide() }
-
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private val delayHideTouchListener = View.OnTouchListener { _, _ ->
-        if (AUTO_HIDE) {
-            delayedHide(AUTO_HIDE_DELAY_MILLIS)
-        }
-        false
+    val codeViewModel: CodeViewModel by viewModels {
+        CodeViewModelFactory((activity as MainActivity).database)
     }
 
     override fun onCreateView(
@@ -58,10 +41,7 @@ class CodeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_code, container, false)
-//        val textView: TextView = root.findViewById(R.id.text_gallery)
-//        galleryViewModel.text.observe(viewLifecycleOwner, Observer {
-//            textView.text = it
-//        })
+        presetButtonNow = (activity as MainActivity).latestPresetButton
         val button_to_home: ImageButton = root.findViewById(R.id.button_to_home)
         button_to_home.setOnClickListener(
             Navigation.createNavigateOnClickListener(R.id.action_nav_code_to_nav_home)
@@ -71,91 +51,112 @@ class CodeFragment : Fragment() {
             (activity as MainActivity).openDrawer()
         }
 
+        buttonPresetLeft = root.findViewById(R.id.button_preset_left)
+        buttonPresetTop = root.findViewById(R.id.button_preset_top)
+        buttonPresetBottom = root.findViewById(R.id.button_preset_bottom)
+        buttonPresetRight = root.findViewById(R.id.button_preset_right)
+        buttonPresetBlank = root.findViewById(R.id.button_preset_blank)
+        categoryRecyclerView = root.findViewById(R.id.recyclerview_categories)
+        commandRecyclerView = root.findViewById(R.id.recyclerview_commands)
+        presetRecyclerView = root.findViewById(R.id.recyclerview_preset_now)
+
+        commandRecyclerView.layoutManager = LinearLayoutManager(activity)
+        categoryRecyclerView.layoutManager = LinearLayoutManager(activity)
+        presetRecyclerView.layoutManager = LinearLayoutManager(activity)
+
+        codeViewModel.categoryList.observe(viewLifecycleOwner, Observer {
+            val categoryList = it ?: return@Observer
+
+            categoryRecyclerView.adapter =
+                CategoryListAdapter(categoryList.names, this)
+        })
+
+        codeViewModel.commandList.observe(viewLifecycleOwner, Observer {
+            val commandList = it ?: return@Observer
+
+            commandRecyclerView.adapter =
+                CommandListAdapter(commandList.names, this)
+        })
+
+        presetRecyclerView.adapter = PresetListAdapter(mutableListOf(), this)
+        val callback =
+            SimpleItemTouchHelperCallback(presetRecyclerView.adapter as PresetListAdapter)
+        val touchHelper = ItemTouchHelper(callback)
+        touchHelper.attachToRecyclerView(presetRecyclerView)
+
+        codeViewModel.presetList.observe(viewLifecycleOwner, Observer {
+            (presetRecyclerView.adapter as PresetListAdapter).updateAll(it)
+        })
+
+        setupButtons()
+        codeViewModel.preLoad()
+
         return root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    private fun setupButtons() {
+        codeViewModel.presetButtonNow = presetButtonNow
 
-        visible = true
-        //toggle()
-    }
+        buttonPresetLeft.isChecked = buttonPresetLeft.contentDescription == presetButtonNow
+        buttonPresetTop.isChecked = buttonPresetTop.contentDescription == presetButtonNow
+        buttonPresetBottom.isChecked = buttonPresetBottom.contentDescription == presetButtonNow
+        buttonPresetRight.isChecked = buttonPresetRight.contentDescription == presetButtonNow
+        buttonPresetBlank.isChecked = buttonPresetBlank.contentDescription == presetButtonNow
 
-    override fun onResume() {
-        super.onResume()
-        activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-
-        // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
-        delayedHide(100)
-    }
-
-//    override fun onPause() {
-//        super.onPause()
-//        activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-//
-//        // Clear the systemUiVisibility flag
-//        activity?.window?.decorView?.systemUiVisibility = 0
-//        show()
-//    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
-    private fun toggle() {
-        if (visible) {
-            hide()
-        } else {
-            show()
+        buttonPresetLeft.addOnCheckedChangeListener { button, isChecked ->
+            (buttonClickAction(
+                button,
+                isChecked
+            ))
+        }
+        buttonPresetTop.addOnCheckedChangeListener { button, isChecked ->
+            (buttonClickAction(
+                button,
+                isChecked
+            ))
+        }
+        buttonPresetBottom.addOnCheckedChangeListener { button, isChecked ->
+            (buttonClickAction(
+                button,
+                isChecked
+            ))
+        }
+        buttonPresetRight.addOnCheckedChangeListener { button, isChecked ->
+            (buttonClickAction(
+                button,
+                isChecked
+            ))
+        }
+        buttonPresetBlank.addOnCheckedChangeListener { button, isChecked ->
+            (buttonClickAction(
+                button,
+                isChecked
+            ))
         }
     }
 
-    private fun hide() {
-        // Hide UI first
-        visible = false
-
-        // Schedule a runnable to remove the status and navigation bar after a delay
-        hideHandler.postDelayed(hidePart2Runnable, UI_ANIMATION_DELAY.toLong())
+    private fun buttonClickAction(view: MaterialButton, isChecked: Boolean) {
+        if (isChecked) {
+            presetButtonNow = view.contentDescription.toString()
+            codeViewModel.presetButtonNow = presetButtonNow
+            (activity as MainActivity).latestPresetButton = presetButtonNow
+            codeViewModel.switchPresetByButtonName()
+        }
     }
 
-    @Suppress("InlinedApi")
-    private fun show() {
-        // Show the system bar
-        visible = true
-
-        // Schedule a runnable to display UI elements after a delay
-        hideHandler.removeCallbacks(hidePart2Runnable)
-        (activity as? AppCompatActivity)?.supportActionBar?.show()
+    fun setupCommands(name: String) {
+        codeViewModel.loadCommandsByCategoryName(name)
     }
 
-    /**
-     * Schedules a call to hide() in [delayMillis], canceling any
-     * previously scheduled calls.
-     */
-    private fun delayedHide(delayMillis: Int) {
-        hideHandler.removeCallbacks(hideRunnable)
-        hideHandler.postDelayed(hideRunnable, delayMillis.toLong())
+    fun addCommandToPreset(name: String) {
+        codeViewModel.addCommandToPreset(name)
     }
 
-    companion object {
-        /**
-         * Whether or not the system UI should be auto-hidden after
-         * [AUTO_HIDE_DELAY_MILLIS] milliseconds.
-         */
-        private const val AUTO_HIDE = true
+    fun removeCommandFromPreset(position: Int) {
+        codeViewModel.removeCommandFromPreset(position)
+    }
 
-        /**
-         * If [AUTO_HIDE] is set, the number of milliseconds to wait after
-         * user interaction before hiding the system UI.
-         */
-        private const val AUTO_HIDE_DELAY_MILLIS = 3000
-
-        /**
-         * Some older devices needs a small delay between UI widget updates
-         * and a change of the status and navigation bar.
-         */
-        private const val UI_ANIMATION_DELAY = 300
+    fun updateDataById(id: Int, data: String) {
+        codeViewModel.updateDataById(id, data)
     }
 }

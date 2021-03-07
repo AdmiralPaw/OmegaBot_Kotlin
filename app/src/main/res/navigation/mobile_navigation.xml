@@ -29,17 +29,33 @@
         android:id="@+id/nav_robot_manager"
         android:name="com.example.omegajoy.ui.robotmanager.RobotManagerFragment"
         android:label="@string/menu_robot_manager"
-        tools:layout="@layout/fragment_robot_manager" >
+        tools:layout="@layout/fragment_robot_manager">
         <action
             android:id="@+id/action_nav_robot_manager_to_nav_home"
             app:destination="@id/nav_home" />
+        <action
+            android:id="@+id/action_nav_robot_manager_to_nav_add_robot"
+            app:destination="@id/nav_add_robot" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_add_robot"
+        android:name="com.example.omegajoy.ui.robotmanager.add_robot.AddRobotFragment"
+        android:label="fragment_add_robot"
+        tools:layout="@layout/fragment_add_robot">
+        <action
+            android:id="@+id/action_nav_add_robot_to_nav_home"
+            app:destination="@id/nav_home" />
+        <action
+            android:id="@+id/action_nav_add_robot_to_nav_robot_manager"
+            app:destination="@id/nav_robot_manager" />
     </fragment>
 
     <fragment
         android:id="@+id/nav_notifications"
         android:name="com.example.omegajoy.ui.notifications.NotificationsFragment"
         android:label="@string/menu_notifications"
-        tools:layout="@layout/fragment_notifications" >
+        tools:layout="@layout/fragment_notifications">
         <action
             android:id="@+id/action_nav_notifications_to_nav_code"
             app:destination="@id/nav_code" />

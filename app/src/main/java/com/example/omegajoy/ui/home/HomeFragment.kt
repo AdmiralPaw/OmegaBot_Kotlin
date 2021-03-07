@@ -1,45 +1,36 @@
 package com.example.omegajoy.ui.home
 
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.ImageButton
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
+import android.widget.Toast
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
 import com.example.omegajoy.MainActivity
 import com.example.omegajoy.R
+import com.example.omegajoy.ui.FullFrameFragment
+import com.example.omegajoy.ui.code.PresetItem
+import com.jmedeisis.bugstick.Joystick
+import com.jmedeisis.bugstick.JoystickListener
+import okhttp3.WebSocket
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.floor
+import kotlin.math.sin
 
 /**
  * An example full-screen fragment that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-class HomeFragment : Fragment() {
-    private val hideHandler = Handler()
-
-    @Suppress("InlinedApi")
-    private val hidePart2Runnable = Runnable {
-        // Delayed removal of status and navigation bar
-
-        // Note that some of these constants are new as of API 16 (Jelly Bean)
-        // and API 19 (KitKat). It is safe to use them, as they are inlined
-        // at compile-time and do nothing on earlier devices.
-        val flags =
-            View.SYSTEM_UI_FLAG_LOW_PROFILE or
-                    View.SYSTEM_UI_FLAG_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-        activity?.window?.decorView?.systemUiVisibility = flags
-        (activity as? AppCompatActivity)?.supportActionBar?.hide()
+class HomeFragment : FullFrameFragment() {
+    private var webSocket: WebSocket? = null
+    private var presets: List<PresetList> = listOf()
+    val homeViewModel: HomeViewModel by viewModels {
+        HomeViewModelFactory((activity as MainActivity).database)
     }
-    private var visible: Boolean = false
-    private val hideRunnable = Runnable { hide() }
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,104 +38,177 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_home, container, false)
-//        val textView: TextView = root.findViewById(R.id.text_gallery)
-//        galleryViewModel.text.observe(viewLifecycleOwner, Observer {
-//            textView.text = it
-//        })
-        val button_to_code: ImageButton = root.findViewById(R.id.button_to_code)
-        button_to_code.setOnClickListener(
+
+        val joystickLeft = root.findViewById<Joystick>(R.id.joystick_left)
+
+        val buttonToCode: ImageButton = root.findViewById(R.id.button_to_code)
+        buttonToCode.setOnClickListener(
             Navigation.createNavigateOnClickListener(R.id.action_nav_home_to_nav_code)
         )
-        val button_to_menu: ImageButton = root.findViewById(R.id.button_to_menu)
-        button_to_menu.setOnClickListener {
+        val buttonToMenu: ImageButton = root.findViewById(R.id.button_to_menu)
+        buttonToMenu.setOnClickListener {
             (activity as MainActivity).openDrawer()
         }
+        val leftButton: ImageButton = root.findViewById(R.id.left_button)
+        val rightButton: ImageButton = root.findViewById(R.id.right_button)
+        val topButton: ImageButton = root.findViewById(R.id.top_button)
+        val bottomButton: ImageButton = root.findViewById(R.id.bottom_button)
+
+        leftButton.setOnClickListener { onClickPresetButton(it) }
+        rightButton.setOnClickListener { onClickPresetButton(it) }
+        topButton.setOnClickListener { onClickPresetButton(it) }
+        bottomButton.setOnClickListener { onClickPresetButton(it) }
+
+        joystickLeft.setJoystickListener(object : JoystickListener {
+            override fun onDown() {
+            }
+
+            override fun onDrag(degrees: Float, offset: Float) {
+                val data0 = ArrayList<Byte>()
+                data0.add(0, 0xFF.toByte())
+                data0.add(1, 0xFE.toByte())
+                data0.add(2, (100 and 0xFF).toByte())
+
+
+                //ArrayList обусловлен методом add для добавления данных
+                // в конец массива, ибо изначально кол-во байт данных не известно
+                for (dataByte in convertJoystickToDrive(
+                    angleConvert(degrees),
+                    distanceConvert(offset)
+                )) {
+                    data0.add(dataByte)
+                }
+
+                data0.add(0xFF.toByte())
+                send(data0)
+            }
+
+            override fun onUp() {
+            }
+        })
+
+        // TODO: получение от CodeFragment.kt листов пресетов
+        homeViewModel.preLoad(listOf(leftButton, rightButton, topButton, bottomButton))
+
+        homeViewModel.presetList.observe(viewLifecycleOwner, Observer {
+            val presetList = it ?: return@Observer
+
+            presets = presetList
+        })
+
+
+        webSocket = (activity as MainActivity).ws
 
         return root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-        visible = true
-        //toggle()
+    fun send(command: ArrayList<Byte>) {
+        val commandStr = StringBuilder()
+        for (data_byte: Byte in command) {
+            commandStr.append(String.format("%02x", data_byte).toUpperCase())
+        }
+        webSocket?.send(
+            "{\"type\":\"cmd\"," +
+                    "\"body\":\"${commandStr}\"}"
+        )
     }
 
-    override fun onResume() {
-        super.onResume()
-        activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-
-        // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
-        delayedHide(100)
-    }
-//
-//    override fun onPause() {
-//        super.onPause()
-//        //activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-//
-//        // Clear the systemUiVisibility flag
-//        //activity?.window?.decorView?.systemUiVisibility = 0
-//        //show()
-//    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
-    private fun toggle() {
-        if (visible) {
-            hide()
-        } else {
-            show()
+    fun sendPreset(presetList: PresetList) {
+        val commandsJSON = presetList.currentList.map { it.toJSON() }
+        for (command in commandsJSON) {
+            webSocket?.send(
+                "{\"type\":\"cmd\"," +
+                        "\"body\":${command}}"
+            )
+            println(
+                "{\"type\":\"cmd\"," +
+                        "\"body\":${command}}"
+            )
         }
     }
 
-    private fun hide() {
-        // Hide UI first
-        visible = false
-
-        // Schedule a runnable to remove the status and navigation bar after a delay
-        hideHandler.postDelayed(hidePart2Runnable, UI_ANIMATION_DELAY.toLong())
+    fun onClickPresetButton(view: View) {
+        val preset = presets.find {
+            it.attachedButton == view.contentDescription
+        }
+        if (preset == null) {
+            Toast.makeText(
+                activity,
+                "Нет пресета на ${view.contentDescription}",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            sendPreset(preset)
+        }
     }
 
-    @Suppress("InlinedApi")
-    private fun show() {
-        // Show the system bar
-        visible = true
+    fun angleConvert(degrees: Float): Int {
+        return if (degrees < 0)
+            360 + degrees.toInt()
+        else
+            degrees.toInt()
+    }
 
-        // Schedule a runnable to display UI elements after a delay
-        hideHandler.removeCallbacks(hidePart2Runnable)
-        (activity as? AppCompatActivity)?.supportActionBar?.show()
+    fun distanceConvert(offset: Float): Int {
+        return (offset * 100).toInt()
     }
 
     /**
-     * Schedules a call to hide() in [delayMillis], canceling any
-     * previously scheduled calls.
+     * @author AdmPaw
+     * @param angel угол от 0 до 360
+     * @param offset отклонение от 0 до 100
+     * @return два байта данных скорости и направления движения двигателей (гусениц) робота
+     * в соответствии с ПРОТОКОЛОМ
      */
-    private fun delayedHide(delayMillis: Int) {
-        hideHandler.removeCallbacks(hideRunnable)
-        hideHandler.postDelayed(hideRunnable, delayMillis.toLong())
-    }
-
-    companion object {
-        /**
-         * Whether or not the system UI should be auto-hidden after
-         * [AUTO_HIDE_DELAY_MILLIS] milliseconds.
-         */
-        private const val AUTO_HIDE = true
-
-        /**
-         * If [AUTO_HIDE] is set, the number of milliseconds to wait after
-         * user interaction before hiding the system UI.
-         */
-        private const val AUTO_HIDE_DELAY_MILLIS = 3000
-
-        /**
-         * Some older devices needs a small delay between UI widget updates
-         * and a change of the status and navigation bar.
-         */
-        private const val UI_ANIMATION_DELAY = 300
+    fun convertJoystickToDrive(angel: Int, offset: Int): ByteArray {
+        val data = ByteArray(2)
+        //TODO добавить ссылку на объяснение типа данного движения
+        val x = floor(offset * cos(Math.toRadians(angel.toDouble())))
+            .toInt()
+        val y = floor(offset * sin(Math.toRadians(angel.toDouble())))
+            .toInt()
+        var leftEngine: Int
+        var rightEngine: Int
+        var left = 1
+        var right = 1
+        val rotateSpeed = abs(x)
+        when {
+            x > 0 -> {
+                leftEngine = y + rotateSpeed
+                rightEngine = y - rotateSpeed
+            }
+            x < 0 -> {
+                leftEngine = y - rotateSpeed
+                rightEngine = y + rotateSpeed
+            }
+            else -> {
+                leftEngine = y
+                rightEngine = y
+            }
+        }
+        //ПРОТОКОЛ диктует скорость от -100 до 100, где впоследствии преобразуется
+        // в промежуток от 0 до 100 со значением направления движения
+        if (leftEngine > 100) leftEngine = 100
+        if (leftEngine < -100) leftEngine = -100
+        if (rightEngine > 100) rightEngine = 100
+        if (rightEngine < -100) rightEngine = -100
+        if (leftEngine < 0) {
+            leftEngine = abs(leftEngine)
+            left = 0
+        }
+        if (rightEngine < 0) {
+            rightEngine = abs(rightEngine)
+            right = 0
+        }
+        //ПРОТОКОЛ диктует ставить направление движения (вперед - 1, назад - 0)
+        // в старший бит байта, остальные 7-мь бит заполнять значением скорости от 0 до 100
+        data[0] = (left shl 7 or (leftEngine and 0xFF)).toByte()
+        data[1] = (right shl 7 or (rightEngine and 0xFF)).toByte()
+        return data
     }
 }
+
+data class PresetList(
+    val currentList: List<PresetItem>,
+    val attachedButton: String
+)

@@ -1,13 +1,15 @@
 package com.example.omegajoy.ui.login
 
+import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import android.util.Patterns
+import androidx.lifecycle.viewModelScope
+import com.example.omegajoy.R
 import com.example.omegajoy.data.LoginRepository
 import com.example.omegajoy.data.Result
-
-import com.example.omegajoy.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel() {
 
@@ -17,15 +19,32 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     private val _loginResult = MutableLiveData<LoginResult>()
     val loginResult: LiveData<LoginResult> = _loginResult
 
-    fun login(username: String, password: String) {
-        // can be launched in a separate asynchronous job
-        val result = loginRepository.login(username, password)
+    fun preLogin() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = loginRepository.preLogin()
 
-        if (result is Result.Success) {
-            _loginResult.value =
-                LoginResult(success = LoggedInUserView(displayName = result.data.displayName))
-        } else {
-            _loginResult.value = LoginResult(error = R.string.login_failed)
+            if (result is Result.Success) {
+                _loginResult.postValue(
+                    LoginResult(success = LoggedInUserView(displayName = result.data.displayName))
+                )
+            } else {
+                _loginResult.postValue(LoginResult(error = R.string.login_failed))
+            }
+        }
+    }
+
+    fun login(username: String, password: String, login_mode: Boolean) {
+        // can be launched in a separate asynchronous job
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = loginRepository.login(username, password, login_mode)
+
+            if (result is Result.Success) {
+                _loginResult.postValue(
+                    LoginResult(success = LoggedInUserView(displayName = result.data.displayName))
+                )
+            } else {
+                _loginResult.postValue(LoginResult(error = R.string.login_failed))
+            }
         }
     }
 

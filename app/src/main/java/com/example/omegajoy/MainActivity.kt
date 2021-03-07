@@ -8,25 +8,33 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupWithNavController
+import com.example.omegajoy.data.dao.CategoryDao
+import com.example.omegajoy.data.dao.UserDao
+import com.example.omegajoy.data.database.AppDatabaseApplication
+import com.example.omegajoy.data.database.AppRoomDatabase
 import com.google.android.material.navigation.NavigationView
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okio.ByteString
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var appBarConfiguration: AppBarConfiguration
+    private lateinit var client: OkHttpClient
+    val JSON: MediaType = "application/json; charset=utf-8".toMediaType()
+    private var listener: EchoWebSocketListener? = null
+    var ws: WebSocket? = null
+    private lateinit var userDao: UserDao
+    lateinit var categoryDao: CategoryDao
+    lateinit var database: AppRoomDatabase
+
+    // TODO: научиться передавать в навигации параметры
+    lateinit var latestPresetButton: String
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-//        val toolbar: Toolbar = findViewById(R.id.toolbar)
-//        setSupportActionBar(toolbar)
-
-//        val fab: FloatingActionButton = findViewById(R.id.fab)
-//        fab.setOnClickListener { view ->
-//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                .setAction("Action", null).show()
-//        }
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment)
@@ -40,44 +48,64 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_settings
             ), drawerLayout
         )
-        //setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        latestPresetButton = getString(R.string.blankbutton)
+
+        userDao = (application as AppDatabaseApplication).userRepository
+        database = (application as AppDatabaseApplication).database
+        categoryDao = (application as AppDatabaseApplication).categoryRepository
+
+        client = OkHttpClient()
+        listener = EchoWebSocketListener()
+        ws = client.newWebSocket(
+            Request.Builder().url("ws://37.77.104.201:1337").build(),
+            listener!!
+        )
     }
-//
-//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        menuInflater.inflate(R.menu.main, menu)
-//        return true
-//    }
+
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
-    public fun openDrawer() {
+    fun openDrawer() {
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         drawerLayout.openDrawer(GravityCompat.START)
     }
 
-//    @SuppressLint("NewApi")
-//    override fun onWindowFocusChanged(hasFocus: Boolean) {
-//        super.onWindowFocusChanged(hasFocus)
-//        if (hasFocus) hideSystemUI()
-//    }
-//
-//    fun hideSystemUI() {
-//        // Set the IMMERSIVE flag.
-//        // Set the content to appear under the system bars so that the content
-//        // doesn't resize when the system bars hide and show.
-//        window.decorView.systemUiVisibility = (
-//                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                        or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-//                        or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-//                        or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//                        or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//                        or View.SYSTEM_UI_FLAG_FULLSCREEN
-//                        or View.SYSTEM_UI_FLAG_IMMERSIVE
-//        )
-//    }
+    fun changeRobot(id: String) {
+        val str = "{\"type\":\"changeRobot\"," +
+                "\"body\":\"${id}\"}"
+        ws?.send(str)
+    }
+
+    inner class EchoWebSocketListener : WebSocketListener() {
+        private val NORMAL_CLOSURE_STATUS = 1000
+
+        override fun onOpen(webSocket: WebSocket, response: Response) {
+            val str = ("{\"type\":\"authUser\"," +
+                    "\"body\":\"${userDao.getLatestUser().access_token}\"}")
+            webSocket.send(str)
+        }
+
+        override fun onMessage(webSocket: WebSocket, text: String) {
+            println("Receiving: $text")
+        }
+
+        override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
+            println("Receiving: " + bytes.hex())
+        }
+
+        override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+            webSocket.close(NORMAL_CLOSURE_STATUS, null)
+            println("Closing: $code $reason")
+        }
+
+        override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+            t.printStackTrace()
+        }
+    }
+
 }

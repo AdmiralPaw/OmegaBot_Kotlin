@@ -3,7 +3,8 @@
     <string name="title_activity_login">LoginActivity</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
-    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in">Регистрация</string>
+    <string name="action_log_in">Войти</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="welcome">"Welcome !"</string>
     <string name="invalid_username">Not a valid username</string>
@@ -25,4 +26,11 @@
     <string name="menu_code">Программирование</string>
     <string name="menu_settings">Настройки</string>
     <string name="menu_home">Управление</string>
+    <string name="sign_in">Регистрация</string>
+    <string name="log_in">Вход</string>
+    <string name="leftbutton">leftButton</string>
+    <string name="topbutton">topButton</string>
+    <string name="bottombutton">bottomButton</string>
+    <string name="rightbutton">rightButton</string>
+    <string name="blankbutton">blankButton</string>
 </resources>
