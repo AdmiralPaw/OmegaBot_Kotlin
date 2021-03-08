@@ -80,7 +80,10 @@ class CodeFragment : FullFrameFragment() {
 
         presetRecyclerView.adapter = PresetListAdapter(mutableListOf(), this)
         val callback =
-            SimpleItemTouchHelperCallback(presetRecyclerView.adapter as PresetListAdapter)
+            SimpleItemTouchHelperCallback(
+                presetRecyclerView.adapter as PresetListAdapter,
+                (activity as MainActivity).applicationContext
+            )
         val touchHelper = ItemTouchHelper(callback)
         touchHelper.attachToRecyclerView(presetRecyclerView)
 
