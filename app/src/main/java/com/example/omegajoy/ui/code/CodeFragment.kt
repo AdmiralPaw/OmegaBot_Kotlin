@@ -101,40 +101,22 @@ class CodeFragment : FullFrameFragment() {
         codeViewModel.presetButtonNow = presetButtonNow
         buttonPresetBlank.isChecked = true
         buttonPresetLeft.addOnCheckedChangeListener { button, isChecked ->
-            (buttonClickAction(
-                button,
-                isChecked
-            ))
+            buttonClickAction(button, isChecked)
         }
         buttonPresetLeft.addOnCheckedChangeListener { button, isChecked ->
-            (buttonClickAction(
-                button,
-                isChecked
-            ))
+            buttonClickAction(button, isChecked)
         }
         buttonPresetTop.addOnCheckedChangeListener { button, isChecked ->
-            (buttonClickAction(
-                button,
-                isChecked
-            ))
+            buttonClickAction(button, isChecked)
         }
         buttonPresetBottom.addOnCheckedChangeListener { button, isChecked ->
-            (buttonClickAction(
-                button,
-                isChecked
-            ))
+            buttonClickAction(button, isChecked)
         }
         buttonPresetRight.addOnCheckedChangeListener { button, isChecked ->
-            (buttonClickAction(
-                button,
-                isChecked
-            ))
+            buttonClickAction(button, isChecked)
         }
         buttonPresetBlank.addOnCheckedChangeListener { button, isChecked ->
-            (buttonClickAction(
-                button,
-                isChecked
-            ))
+            buttonClickAction(button, isChecked)
         }
     }
 
