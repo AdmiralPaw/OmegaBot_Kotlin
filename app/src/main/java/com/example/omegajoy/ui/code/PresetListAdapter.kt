@@ -1,5 +1,10 @@
 package com.example.omegajoy.ui.code
 
+import android.content.Context
+import android.content.Context.VIBRATOR_SERVICE
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -191,9 +196,21 @@ class PresetListAdapter(
     }
 }
 
-class SimpleItemTouchHelperCallback(private val adapter: ItemTouchHelperAdapter) :
+class SimpleItemTouchHelperCallback(
+    private val adapter: ItemTouchHelperAdapter,
+    private val context: Context
+) :
     ItemTouchHelper.Callback() {
     override fun isLongPressDragEnabled(): Boolean {
+        val v = context.getSystemService(VIBRATOR_SERVICE) as Vibrator
+        val milliseconds = 125L
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val amplitude = VibrationEffect.DEFAULT_AMPLITUDE
+            v.vibrate(VibrationEffect.createOneShot(milliseconds, amplitude))
+        } else {
+            //deprecated in API 26
+            v.vibrate(milliseconds)
+        }
         return true
     }
 
