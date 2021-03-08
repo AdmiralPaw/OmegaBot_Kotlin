@@ -21,7 +21,7 @@ import com.google.android.material.button.MaterialButton
  * status bar and navigation/system bar) with user interaction.
  */
 class CodeFragment : FullFrameFragment() {
-    private var presetButtonNow: String = "blankButton"
+    private lateinit var presetButtonNow: String
     private lateinit var categoryRecyclerView: RecyclerView
     private lateinit var commandRecyclerView: RecyclerView
     private lateinit var presetRecyclerView: RecyclerView
@@ -41,7 +41,7 @@ class CodeFragment : FullFrameFragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_code, container, false)
-
+        presetButtonNow = (activity as MainActivity).latestPresetButton
         val button_to_home: ImageButton = root.findViewById(R.id.button_to_home)
         button_to_home.setOnClickListener(
             Navigation.createNavigateOnClickListener(R.id.action_nav_code_to_nav_home)
@@ -99,24 +99,42 @@ class CodeFragment : FullFrameFragment() {
 
     private fun setupButtons() {
         codeViewModel.presetButtonNow = presetButtonNow
-        buttonPresetBlank.isChecked = true
+
+        buttonPresetLeft.isChecked = buttonPresetLeft.contentDescription == presetButtonNow
+        buttonPresetTop.isChecked = buttonPresetTop.contentDescription == presetButtonNow
+        buttonPresetBottom.isChecked = buttonPresetBottom.contentDescription == presetButtonNow
+        buttonPresetRight.isChecked = buttonPresetRight.contentDescription == presetButtonNow
+        buttonPresetBlank.isChecked = buttonPresetBlank.contentDescription == presetButtonNow
+
         buttonPresetLeft.addOnCheckedChangeListener { button, isChecked ->
-            buttonClickAction(button, isChecked)
-        }
-        buttonPresetLeft.addOnCheckedChangeListener { button, isChecked ->
-            buttonClickAction(button, isChecked)
+            (buttonClickAction(
+                button,
+                isChecked
+            ))
         }
         buttonPresetTop.addOnCheckedChangeListener { button, isChecked ->
-            buttonClickAction(button, isChecked)
+            (buttonClickAction(
+                button,
+                isChecked
+            ))
         }
         buttonPresetBottom.addOnCheckedChangeListener { button, isChecked ->
-            buttonClickAction(button, isChecked)
+            (buttonClickAction(
+                button,
+                isChecked
+            ))
         }
         buttonPresetRight.addOnCheckedChangeListener { button, isChecked ->
-            buttonClickAction(button, isChecked)
+            (buttonClickAction(
+                button,
+                isChecked
+            ))
         }
         buttonPresetBlank.addOnCheckedChangeListener { button, isChecked ->
-            buttonClickAction(button, isChecked)
+            (buttonClickAction(
+                button,
+                isChecked
+            ))
         }
     }
 
@@ -124,6 +142,7 @@ class CodeFragment : FullFrameFragment() {
         if (isChecked) {
             presetButtonNow = view.contentDescription.toString()
             codeViewModel.presetButtonNow = presetButtonNow
+            (activity as MainActivity).latestPresetButton = presetButtonNow
             codeViewModel.switchPresetByButtonName()
         }
     }
