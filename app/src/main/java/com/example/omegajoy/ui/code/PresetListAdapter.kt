@@ -203,7 +203,6 @@ class SimpleItemTouchHelperCallback(
     ItemTouchHelper.Callback() {
     override fun isLongPressDragEnabled(): Boolean {
         val v = context.getSystemService(VIBRATOR_SERVICE) as Vibrator
-        // TODO: настроить значения вибрации
         val milliseconds = 125L
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val amplitude = VibrationEffect.DEFAULT_AMPLITUDE
