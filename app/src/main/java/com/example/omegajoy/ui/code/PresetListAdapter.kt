@@ -86,8 +86,11 @@ class PresetListAdapter(
                             }
 
                             override fun onStopTrackingTouch(slider: Slider) {
-                                codeFragment.updateDataById(userData.id, slider.value.toString())
-                                userData.data = slider.value.toString()
+                                codeFragment.updateDataById(
+                                    userData.id,
+                                    slider.value.toInt().toString()
+                                )
+                                userData.data = slider.value.toInt().toString()
                             }
                         })
                         layout
@@ -97,11 +100,14 @@ class PresetListAdapter(
                         val toggle =
                             layout.findViewById<SwitchMaterial>(R.id.switch_toggle)
                         toggle.text = userData.name
-                        toggle.isChecked = userData.data.toInt() == 1
+                        toggle.isChecked = when (userData.data) {
+                            "true" -> true
+                            else -> false
+                        }
                         toggle.setOnCheckedChangeListener { _, b ->
                             userData.data = when (b) {
-                                true -> "1"
-                                false -> "0"
+                                true -> "true"
+                                false -> "false"
                             }
                             codeFragment.updateDataById(userData.id, userData.data)
                         }

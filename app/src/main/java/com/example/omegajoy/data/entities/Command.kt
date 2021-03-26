@@ -14,5 +14,6 @@ import androidx.room.PrimaryKey
 data class Command(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
-    val categoryId: Int
+    val categoryId: Int,
+    val robotId: Int?
 )

@@ -10,9 +10,9 @@ data class PresetItem(
     val data: List<UserData>
 ) {
     fun toJSON(): String {
-        val header = "\"id\":\"${command.id}\""
+        val header = "\"id\":\"${command.robotId}\""
         val bodyItems = data.map {
-            "{\"name\":\"${it.name}\",\"value\":\"${it.data}\"}"
+            "\"${it.data}\""
         }
         val body = when (bodyItems.isNullOrEmpty()) {
             true -> ""
