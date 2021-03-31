@@ -1,7 +1,9 @@
 package com.example.omegabot.ui.robotmanager.add_robot
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +11,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.Navigation
 import com.blikoon.qrcodescanner.QrCodeActivity
@@ -53,8 +57,21 @@ class AddRobotFragment : FullFrameFragment() {
 
         val qrScanner: ImageButton = root.findViewById(R.id.qr_scanner)
         qrScanner.setOnClickListener {
-            val i = Intent(activity, QrCodeActivity::class.java)
-            startActivityForResult(i, REQUEST_CODE_QR_SCAN)
+            // проверка наличия разрешения на использование камеры
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.CAMERA
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(Manifest.permission.CAMERA),
+                    MY_PERMISSIONS_REQUEST_CAMERA
+                )
+            } else {
+                val i = Intent(activity, QrCodeActivity::class.java)
+                startActivityForResult(i, REQUEST_CODE_QR_SCAN)
+            }
         }
 
         return root
@@ -78,5 +95,6 @@ class AddRobotFragment : FullFrameFragment() {
 
     companion object {
         private val REQUEST_CODE_QR_SCAN = 101
+        private val MY_PERMISSIONS_REQUEST_CAMERA = 100
     }
 }
