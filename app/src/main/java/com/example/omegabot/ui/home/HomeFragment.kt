@@ -57,10 +57,9 @@ class HomeFragment : FullFrameFragment() {
 
         joystickLeft.setJoystickListener(object : JoystickListener {
             override fun onDown() {
+                homeViewModel.sendStoppers()
                 homeViewModel.toggle = true
                 homeViewModel.sendData()
-                homeViewModel.lastAngle = 0
-                homeViewModel.lastDistance = 0
             }
 
             override fun onDrag(degrees: Float, offset: Float) {
@@ -69,8 +68,7 @@ class HomeFragment : FullFrameFragment() {
             }
 
             override fun onUp() {
-                homeViewModel.lastAngle = 0
-                homeViewModel.lastDistance = 0
+                homeViewModel.sendStoppers()
                 homeViewModel.toggle = false
             }
         })
@@ -86,7 +84,6 @@ class HomeFragment : FullFrameFragment() {
 
 
         webSocket = (activity as MainActivity).ws
-
 
         return root
     }

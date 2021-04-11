@@ -14,13 +14,11 @@ import com.example.omegabot.data.database.AppDatabaseApplication
 import com.example.omegabot.data.database.AppRoomDatabase
 import com.google.android.material.navigation.NavigationView
 import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaType
 import okio.ByteString
 
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var client: OkHttpClient
-    val JSON: MediaType = "application/json; charset=utf-8".toMediaType()
     private var listener: EchoWebSocketListener? = null
     var ws: WebSocket? = null
     private lateinit var userDao: UserDao

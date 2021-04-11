@@ -92,6 +92,10 @@ class HomeViewModel(dataSource: AppRoomDatabase, val homeFragment: HomeFragment)
         }
     }
 
+    fun sendStoppers() {
+        homeFragment.send(convertJoystickToDrive(0, 0))
+    }
+
     /**
      * @author AdmPaw
      * @param angel угол от 0 до 360
