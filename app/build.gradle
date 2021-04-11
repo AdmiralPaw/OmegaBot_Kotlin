@@ -9,11 +9,11 @@ android {
     buildToolsVersion "30.0.2"
 
     defaultConfig {
-        applicationId "com.example.omegajoy"
+        applicationId "com.example.omegabot"
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
-        versionName "0.1-dev"
+        versionName "0.1.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
